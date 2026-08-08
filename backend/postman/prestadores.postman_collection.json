@@ -1,0 +1,238 @@
+{
+  "info": {
+    "name": "Cadastro de Perfil de Prestador",
+    "description": "Cobre os critérios de aceite de POST /api/prestadores: 401 sem autenticação, 201 na criação, 400 na validação e 409 na duplicidade.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:8080/api" },
+    { "key": "userEmail", "value": "" },
+    { "key": "token", "value": "" }
+  ],
+  "item": [
+    {
+      "name": "Setup",
+      "item": [
+        {
+          "name": "Registrar usuário de teste",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 201', function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "",
+                  "const jsonData = pm.response.json();",
+                  "pm.collectionVariables.set('userEmail', jsonData.email);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Provider Test\",\n  \"email\": \"{{$randomEmail}}\",\n  \"password\": \"senha123\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/register",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "register"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Login com usuário de teste",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "const jsonData = pm.response.json();",
+                  "pm.collectionVariables.set('token', jsonData.token);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{userEmail}}\",\n  \"password\": \"senha123\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "login"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Prestadores",
+      "item": [
+        {
+          "name": "401 - Sem autenticação",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 401', function () {",
+                  "    pm.response.to.have.status(401);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"document\": \"529.982.247-25\",\n  \"phones\": [\"81999999999\"],\n  \"categories\": [\"Eletricista\"],\n  \"serviceAreas\": [\"Recife\"],\n  \"description\": \"Atendo em toda a região metropolitana\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/prestadores",
+              "host": ["{{baseUrl}}"],
+              "path": ["prestadores"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "201 - Criação com sucesso",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 201', function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "",
+                  "pm.test('Perfil vinculado ao documento enviado', function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.document).to.eql('529.982.247-25');",
+                  "    pm.expect(jsonData.documentType).to.eql('CPF');",
+                  "    pm.expect(jsonData.categories).to.include('Eletricista');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"document\": \"529.982.247-25\",\n  \"phones\": [\"81999999999\"],\n  \"categories\": [\"Eletricista\"],\n  \"serviceAreas\": [\"Recife\"],\n  \"description\": \"Atendo em toda a região metropolitana\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/prestadores",
+              "host": ["{{baseUrl}}"],
+              "path": ["prestadores"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "400 - Documento em formato inválido",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 400', function () {",
+                  "    pm.response.to.have.status(400);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"document\": \"123\",\n  \"phones\": [\"81999999999\"],\n  \"categories\": [\"Eletricista\"],\n  \"serviceAreas\": [\"Recife\"],\n  \"description\": \"Atendo em toda a região metropolitana\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/prestadores",
+              "host": ["{{baseUrl}}"],
+              "path": ["prestadores"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "409 - Perfil duplicado",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 409', function () {",
+                  "    pm.response.to.have.status(409);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"document\": \"529.982.247-25\",\n  \"phones\": [\"81999999999\"],\n  \"categories\": [\"Eletricista\"],\n  \"serviceAreas\": [\"Recife\"],\n  \"description\": \"Atendo em toda a região metropolitana\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/prestadores",
+              "host": ["{{baseUrl}}"],
+              "path": ["prestadores"]
+            }
+          },
+          "response": []
+        }
+      ]
+    }
+  ]
+}
