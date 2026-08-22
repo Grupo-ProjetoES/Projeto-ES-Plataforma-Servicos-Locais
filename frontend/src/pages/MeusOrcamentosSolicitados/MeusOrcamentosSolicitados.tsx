@@ -1,9 +1,21 @@
 import { useEffect, useState } from 'react';
+import axios from 'axios';
 import { orcamentoService } from '../../services/orcamento.service';
 import type { OrcamentoResponse } from '../../models/orcamento-response.model';
 import Logo from '../../components/Logo/Logo';
 import OrcamentoSolicitadoCard from './components/OrcamentoSolicitadoCard';
 import './MeusOrcamentosSolicitados.css';
+
+function obterMensagemErro(error: unknown): string {
+  if (axios.isAxiosError(error)) {
+    const mensagem = error.response?.data?.message;
+    if (typeof mensagem === 'string' && mensagem.trim()) {
+      return mensagem;
+    }
+  }
+
+  return 'Não foi possível processar sua solicitação. Tente novamente.';
+}
 
 export default function MeusOrcamentosSolicitados() {
   const [orcamentos, setOrcamentos] = useState<OrcamentoResponse[]>([]);
@@ -61,11 +73,17 @@ export default function MeusOrcamentosSolicitados() {
       );
     } catch (err) {
       console.error(`Erro ao ${acao} orçamento:`, err);
-      alert(`Não foi possível ${acao} o orçamento. Tente novamente.`);
+      setErrorMessage(obterMensagemErro(err));
     } finally {
       setProcessandoId(null);
     }
   };
+
+  const servicosContratados = new Set(
+    orcamentos
+      .filter((item) => item.status_resposta === 'ACEITO')
+      .map((item) => item.servicoId)
+  );
 
   return (
     <>
@@ -97,6 +115,7 @@ export default function MeusOrcamentosSolicitados() {
                   key={orcamento.id}
                   orcamento={orcamento}
                   processandoId={processandoId}
+                  servicoContratado={servicosContratados.has(orcamento.servicoId)}
                   onDecidir={handleDecisao}
                 />
               ))}

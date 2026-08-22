@@ -3,6 +3,7 @@ import type { OrcamentoResponse } from '../../../models/orcamento-response.model
 interface OrcamentoSolicitadoCardProps {
   readonly orcamento: OrcamentoResponse;
   readonly processandoId: number | null;
+  readonly servicoContratado: boolean;
   readonly onDecidir: (id: number, acao: 'aceitar' | 'recusar') => void;
 }
 
@@ -20,7 +21,7 @@ function formatarStatus(status: string): string {
     case 'RESPONDIDO':
       return 'Respondido';
     case 'ACEITO':
-      return 'Proposta Aceita';
+      return 'Serviço Contratado';
     case 'RECUSADO':
       return 'Proposta Recusada';
     default:
@@ -31,6 +32,7 @@ function formatarStatus(status: string): string {
 export default function OrcamentoSolicitadoCard({
   orcamento,
   processandoId,
+  servicoContratado,
   onDecidir,
 }: OrcamentoSolicitadoCardProps) {
   const status = extrairStatus(orcamento);
@@ -88,7 +90,7 @@ export default function OrcamentoSolicitadoCard({
         </div>
       )}
 
-      {status === 'RESPONDIDO' && (
+      {status === 'RESPONDIDO' && !servicoContratado && (
         <div className="orcamento-card-actions">
           <button
             type="button"
@@ -109,9 +111,15 @@ export default function OrcamentoSolicitadoCard({
         </div>
       )}
 
+      {status === 'RESPONDIDO' && servicoContratado && (
+        <div className="status-feedback status-feedback-recusado">
+          Este serviço já foi contratado a partir de outro orçamento.
+        </div>
+      )}
+
       {status === 'ACEITO' && (
         <div className="status-feedback status-feedback-aceito">
-          ✓ Você aceitou esta proposta.
+          ✓ Serviço contratado! Você aceitou esta proposta.
         </div>
       )}
 
