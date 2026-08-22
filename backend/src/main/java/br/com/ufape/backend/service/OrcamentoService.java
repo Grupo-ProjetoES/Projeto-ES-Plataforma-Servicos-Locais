@@ -118,10 +118,14 @@ public class OrcamentoService {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "O orçamento precisa estar respondido para ser aceito");
         }
 
-        orcamento.setStatus_resposta("ACEITO");
         Servico servico = orcamento.getServico();
+        if (servico.getStatus() != StatusServico.DISPONIVEL) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Este serviço já possui um orçamento aceito");
+        }
+
+        orcamento.setStatus_resposta("ACEITO");
         servico.setCliente(clienteAutenticado);
-        servico.setStatus(StatusServico.EM_ANDAMENTO);
+        servico.setStatus(StatusServico.CONTRATADO);
         Orcamento orcamentoAtualizado = orcamentoRepository.save(orcamento);
 
         return toResponseDto(orcamentoAtualizado);

@@ -183,6 +183,78 @@ class OrcamentoServiceTest {
         assertNotNull(resultado);
         assertEquals("ACEITO", resultado.status_resposta());
         assertEquals(solicitante, servico.getCliente());
-        assertEquals(StatusServico.EM_ANDAMENTO, servico.getStatus());
+        assertEquals(StatusServico.CONTRATADO, servico.getStatus());
+    }
+
+    @Test
+    void deveLancarErro403QuandoOutroUsuarioTentaAceitarOrcamento() {
+        configurarServicoValido();
+        ReflectionTestUtils.setField(solicitante, "id", 20L);
+        servico.setStatus(StatusServico.DISPONIVEL);
+
+        Orcamento orcamentoNoBanco = new Orcamento();
+        ReflectionTestUtils.setField(orcamentoNoBanco, "id", 1L);
+        orcamentoNoBanco.setPrestador(prestador);
+        orcamentoNoBanco.setSolicitante(solicitante);
+        orcamentoNoBanco.setServico(servico);
+        orcamentoNoBanco.setStatus_resposta("RESPONDIDO");
+
+        User outroUsuario = new User();
+        ReflectionTestUtils.setField(outroUsuario, "id", 99L);
+
+        when(orcamentoRepository.findById(1L)).thenReturn(Optional.of(orcamentoNoBanco));
+
+        ResponseStatusException exception = assertThrows(
+                ResponseStatusException.class,
+                () -> orcamentoService.aceitar(1L, outroUsuario)
+        );
+
+        assertEquals(HttpStatus.FORBIDDEN, exception.getStatusCode());
+    }
+
+    @Test
+    void deveLancarErro400QuandoOrcamentoNaoFoiRespondido() {
+        configurarServicoValido();
+        ReflectionTestUtils.setField(solicitante, "id", 20L);
+        servico.setStatus(StatusServico.DISPONIVEL);
+
+        Orcamento orcamentoNoBanco = new Orcamento();
+        ReflectionTestUtils.setField(orcamentoNoBanco, "id", 1L);
+        orcamentoNoBanco.setPrestador(prestador);
+        orcamentoNoBanco.setSolicitante(solicitante);
+        orcamentoNoBanco.setServico(servico);
+        orcamentoNoBanco.setStatus_resposta("PENDENTE");
+
+        when(orcamentoRepository.findById(1L)).thenReturn(Optional.of(orcamentoNoBanco));
+
+        ResponseStatusException exception = assertThrows(
+                ResponseStatusException.class,
+                () -> orcamentoService.aceitar(1L, solicitante)
+        );
+
+        assertEquals(HttpStatus.BAD_REQUEST, exception.getStatusCode());
+    }
+
+    @Test
+    void deveLancarErro400QuandoServicoJaEstiverContratado() {
+        configurarServicoValido();
+        ReflectionTestUtils.setField(solicitante, "id", 20L);
+        servico.setStatus(StatusServico.CONTRATADO);
+
+        Orcamento orcamentoNoBanco = new Orcamento();
+        ReflectionTestUtils.setField(orcamentoNoBanco, "id", 1L);
+        orcamentoNoBanco.setPrestador(prestador);
+        orcamentoNoBanco.setSolicitante(solicitante);
+        orcamentoNoBanco.setServico(servico);
+        orcamentoNoBanco.setStatus_resposta("RESPONDIDO");
+
+        when(orcamentoRepository.findById(1L)).thenReturn(Optional.of(orcamentoNoBanco));
+
+        ResponseStatusException exception = assertThrows(
+                ResponseStatusException.class,
+                () -> orcamentoService.aceitar(1L, solicitante)
+        );
+
+        assertEquals(HttpStatus.BAD_REQUEST, exception.getStatusCode());
     }
 }
