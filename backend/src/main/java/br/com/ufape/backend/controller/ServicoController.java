@@ -3,6 +3,7 @@ package br.com.ufape.backend.controller;
 import br.com.ufape.backend.dto.AtualizarStatusServicoDto;
 import br.com.ufape.backend.dto.AvaliacaoRequestDto;
 import br.com.ufape.backend.dto.AvaliacaoResponseDto;
+import br.com.ufape.backend.dto.ServicoContratadoPrestadorResponseDto;
 import br.com.ufape.backend.dto.HistoricoServicoContratadoDto;
 import br.com.ufape.backend.dto.ServicoContratadoResponseDto;
 import br.com.ufape.backend.dto.ServicoDetalheResponseDto;
@@ -67,6 +68,16 @@ public class ServicoController {
         List<ServicoContratadoResponseDto> servicosContratados =
                 servicoService.buscarContratadosPorCliente(usuarioAutenticado.getId());
         return ResponseEntity.ok(servicosContratados);
+    }
+
+    // Lista os serviços contratados sob responsabilidade do prestador autenticado que ainda não foram iniciados
+    @GetMapping("/contratados/prestador")
+    public ResponseEntity<List<ServicoContratadoPrestadorResponseDto>> listarServicosContratadosDoPrestador(
+            @AuthenticationPrincipal User usuarioAutenticado) {
+
+        List<ServicoContratadoPrestadorResponseDto> servicos =
+                servicoService.buscarContratadosNaoIniciadosPorPrestador(usuarioAutenticado.getId());
+        return ResponseEntity.ok(servicos);
     }
 
     // Busca os detalhes de um serviço específico pelo ID

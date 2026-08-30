@@ -2,6 +2,7 @@ package br.com.ufape.backend.controller;
 
 import br.com.ufape.backend.dto.AvaliacaoRequestDto;
 import br.com.ufape.backend.dto.AvaliacaoResponseDto;
+import br.com.ufape.backend.dto.ServicoContratadoPrestadorResponseDto;
 import br.com.ufape.backend.dto.ServicoContratadoResponseDto;
 import br.com.ufape.backend.enums.StatusServico;
 import br.com.ufape.backend.enums.UserRole;
@@ -149,6 +150,66 @@ class ServicoControllerTest {
         mockMvc.perform(get("/api/servicos/contratados")
                         .contextPath("/api")
                         .with(authentication(usuarioAutenticado)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$").isArray())
+                .andExpect(jsonPath("$").isEmpty());
+    }
+
+    @Test
+    void deveRetornar401AoListarContratadosDoPrestadorQuandoUsuarioNaoEstaAutenticado() throws Exception {
+        mockMvc.perform(get("/api/servicos/contratados/prestador")
+                        .contextPath("/api"))
+                .andExpect(status().isUnauthorized())
+                .andExpect(jsonPath("$.status").value(401));
+    }
+
+    @Test
+    void deveRetornar403AoListarContratadosDoPrestadorQuandoUsuarioNaoForPrestador() throws Exception {
+        mockMvc.perform(get("/api/servicos/contratados/prestador")
+                        .contextPath("/api")
+                        .with(authentication(usuarioAutenticado)))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    void deveListarContratadosDoPrestadorQuandoPrestadorPossuirServicosNaoIniciados() throws Exception {
+        User prestadorAutenticado = criarUsuarioAutenticado(2L, "Carlos", "carlos@email.com", UserRole.PRESTADOR);
+        List<ServicoContratadoPrestadorResponseDto> response = List.of(
+                new ServicoContratadoPrestadorResponseDto(
+                        1L,
+                        "Instalação Elétrica",
+                        "Eletricista",
+                        "Ana Contratante",
+                        "Boa Viagem, Recife",
+                        "Próxima segunda de manhã",
+                        StatusServico.CONTRATADO
+                )
+        );
+
+        when(servicoService.buscarContratadosNaoIniciadosPorPrestador(prestadorAutenticado.getId()))
+                .thenReturn(response);
+
+        mockMvc.perform(get("/api/servicos/contratados/prestador")
+                        .contextPath("/api")
+                        .with(authentication(prestadorAutenticado)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].id").value(1))
+                .andExpect(jsonPath("$[0].titulo").value("Instalação Elétrica"))
+                .andExpect(jsonPath("$[0].categoria").value("Eletricista"))
+                .andExpect(jsonPath("$[0].nomeContratante").value("Ana Contratante"))
+                .andExpect(jsonPath("$[0].localAtendimento").value("Boa Viagem, Recife"))
+                .andExpect(jsonPath("$[0].dataOuPeriodoSolicitado").value("Próxima segunda de manhã"))
+                .andExpect(jsonPath("$[0].statusAtual").value("CONTRATADO"));
+    }
+
+    @Test
+    void deveRetornarListaVaziaQuandoPrestadorNaoPossuirContratadosNaoIniciados() throws Exception {
+        User prestadorAutenticado = criarUsuarioAutenticado(2L, "Carlos", "carlos@email.com", UserRole.PRESTADOR);
+        when(servicoService.buscarContratadosNaoIniciadosPorPrestador(anyLong())).thenReturn(List.of());
+
+        mockMvc.perform(get("/api/servicos/contratados/prestador")
+                        .contextPath("/api")
+                        .with(authentication(prestadorAutenticado)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$").isArray())
                 .andExpect(jsonPath("$").isEmpty());
