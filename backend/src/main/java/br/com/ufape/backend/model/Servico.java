@@ -1,5 +1,7 @@
 package br.com.ufape.backend.model;
 
+import java.time.LocalDateTime;
+
 import br.com.ufape.backend.enums.FormaCobranca;
 import br.com.ufape.backend.enums.StatusServico;
 import jakarta.persistence.*;
@@ -46,6 +48,9 @@ public class Servico {
     @Column(nullable = false, length = 50)
     private StatusServico status;
 
+    @Column(name = "data_contratacao")
+    private LocalDateTime dataContratacao;
+
     public Servico() {
         // Construtor vazio exigido pelo JPA
     }
@@ -69,4 +74,6 @@ public class Servico {
     public void setCliente(User cliente) { this.cliente = cliente; }
     public StatusServico getStatus() { return status; }
     public void setStatus(StatusServico status) { this.status = status; }
+    public LocalDateTime getDataContratacao() { return dataContratacao; }
+    public void setDataContratacao(LocalDateTime dataContratacao) { this.dataContratacao = dataContratacao; }
 }
