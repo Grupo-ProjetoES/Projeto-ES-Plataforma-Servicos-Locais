@@ -255,6 +255,27 @@ class ServicoControllerTest {
                 .andExpect(jsonPath("$.status").value(409))
                 .andExpect(jsonPath("$.message").value("O usuário já avaliou este serviço"));
     }
+    @Test
+    void deveRetornarHistoricoComSucesso() throws Exception {
+        when(servicoService.buscarHistoricoContratacoes(usuarioAutenticado.getId()))
+                .thenReturn(List.of());
+
+        mockMvc.perform(get("/api/servicos/contratados/historico")
+                        .contextPath("/api")
+                        .with(authentication(usuarioAutenticado)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$").isArray());
+    }
+
+    @Test
+    void deveRetornar401AoBuscarHistoricoSemEstarLogado() throws Exception {
+        mockMvc.perform(get("/api/servicos/contratados/historico")
+                        .contextPath("/api"))
+                .andExpect(status().isUnauthorized())
+                .andExpect(jsonPath("$.status").value(401));
+    }
+    
+
 
     private User criarUsuarioAutenticado(Long id, String nome, String email, UserRole role) {
         User usuario = new User();
@@ -271,4 +292,7 @@ class ServicoControllerTest {
                 new UsernamePasswordAuthenticationToken(usuario, null, usuario.getAuthorities())
         );
     }
+    
+
+
 }
