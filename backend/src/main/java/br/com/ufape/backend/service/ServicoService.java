@@ -1,14 +1,17 @@
 package br.com.ufape.backend.service;
 
+import br.com.ufape.backend.dto.ServicoContratadoPrestadorResponseDto;
 import br.com.ufape.backend.dto.ServicoContratadoResponseDto;
 import br.com.ufape.backend.dto.ServicoDetalheResponseDto;
 import br.com.ufape.backend.dto.ServicoRequestDto;
 import br.com.ufape.backend.dto.ServicoResumoResponseDto;
 import br.com.ufape.backend.enums.StatusServico;
+import br.com.ufape.backend.model.Orcamento;
 import br.com.ufape.backend.model.ProviderProfile;
 import br.com.ufape.backend.model.ServiceCategory;
 import br.com.ufape.backend.model.Servico;
 import br.com.ufape.backend.model.User;
+import br.com.ufape.backend.repository.OrcamentoRepository;
 import br.com.ufape.backend.repository.ProviderProfileRepository;
 import br.com.ufape.backend.repository.ServiceCategoryRepository;
 import br.com.ufape.backend.repository.ServicoRepository;
@@ -27,13 +30,16 @@ public class ServicoService {
     private final ServicoRepository servicoRepository;
     private final ProviderProfileRepository providerProfileRepository;
     private final ServiceCategoryRepository categoryRepository;
+    private final OrcamentoRepository orcamentoRepository;
 
-    public ServicoService(ServicoRepository servicoRepository, 
-                          ProviderProfileRepository providerProfileRepository, 
-                          ServiceCategoryRepository categoryRepository) {
+    public ServicoService(ServicoRepository servicoRepository,
+                          ProviderProfileRepository providerProfileRepository,
+                          ServiceCategoryRepository categoryRepository,
+                          OrcamentoRepository orcamentoRepository) {
         this.servicoRepository = servicoRepository;
         this.providerProfileRepository = providerProfileRepository;
         this.categoryRepository = categoryRepository;
+        this.orcamentoRepository = orcamentoRepository;
     }
 
     public Servico cadastrarServico(ServicoRequestDto dto) {
@@ -104,6 +110,27 @@ public class ServicoService {
                 s.getPrestador().getUser().getName(),
                 s.getStatus()
         )).toList();
+    }
+
+    // Busca os serviços contratados sob responsabilidade do prestador que ainda não tiveram a execução iniciada
+    public List<ServicoContratadoPrestadorResponseDto> buscarContratadosNaoIniciadosPorPrestador(Long usuarioId) {
+        List<Orcamento> orcamentos = orcamentoRepository.findContratadosNaoIniciadosByPrestadorUserId(
+                usuarioId,
+                StatusServico.CONTRATADO
+        );
+
+        return orcamentos.stream().map(o -> {
+            Servico servico = o.getServico();
+            return new ServicoContratadoPrestadorResponseDto(
+                    servico.getId(),
+                    servico.getTitulo(),
+                    servico.getCategoria().getName(),
+                    o.getSolicitante().getName(),
+                    o.getLocalAtendimento(),
+                    o.getDataOuPeriodoDesejado(),
+                    servico.getStatus()
+            );
+        }).toList();
     }
 
     public ServicoDetalheResponseDto buscarPorId(Long id) {

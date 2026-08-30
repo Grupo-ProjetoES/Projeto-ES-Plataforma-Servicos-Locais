@@ -1,11 +1,13 @@
 package br.com.ufape.backend.service;
 
+import br.com.ufape.backend.dto.ServicoContratadoPrestadorResponseDto;
 import br.com.ufape.backend.dto.ServicoContratadoResponseDto;
 import br.com.ufape.backend.dto.ServicoDetalheResponseDto;
 import br.com.ufape.backend.dto.ServicoRequestDto;
 import br.com.ufape.backend.dto.ServicoResumoResponseDto;
 import br.com.ufape.backend.enums.StatusServico;
 import br.com.ufape.backend.model.*;
+import br.com.ufape.backend.repository.OrcamentoRepository;
 import br.com.ufape.backend.repository.ProviderProfileRepository;
 import br.com.ufape.backend.repository.ServiceCategoryRepository;
 import br.com.ufape.backend.repository.ServicoRepository;
@@ -46,6 +48,9 @@ class ServicoServiceTest {
 
     @Mock
     private ServiceCategoryRepository categoryRepository;
+
+    @Mock
+    private OrcamentoRepository orcamentoRepository;
 
     @InjectMocks
     private ServicoService servicoService;
@@ -421,6 +426,58 @@ class ServicoServiceTest {
         assertTrue(resultado.isEmpty());
     }
 
+    @Test
+    void deveBuscarContratadosNaoIniciadosPorPrestador() {
+        Long prestadorUsuarioId = 7L;
+
+        User contratante = new User();
+        contratante.setName("Ana Contratante");
+
+        ServiceCategory categoria = new ServiceCategory("Eletricista");
+
+        Servico servico = new Servico();
+        ReflectionTestUtils.setField(servico, "id", 1L);
+        servico.setTitulo("Instalação Elétrica");
+        servico.setCategoria(categoria);
+        servico.setStatus(StatusServico.CONTRATADO);
+
+        Orcamento orcamento = new Orcamento();
+        orcamento.setServico(servico);
+        orcamento.setSolicitante(contratante);
+        orcamento.setLocalAtendimento("Boa Viagem, Recife");
+        orcamento.setDataOuPeriodoDesejado("Próxima segunda de manhã");
+
+        when(orcamentoRepository.findContratadosNaoIniciadosByPrestadorUserId(
+                prestadorUsuarioId,
+                StatusServico.CONTRATADO
+        )).thenReturn(List.of(orcamento));
+
+        List<ServicoContratadoPrestadorResponseDto> resultado =
+                servicoService.buscarContratadosNaoIniciadosPorPrestador(prestadorUsuarioId);
+
+        assertEquals(1, resultado.size());
+        assertEquals(1L, resultado.get(0).id());
+        assertEquals("Instalação Elétrica", resultado.get(0).titulo());
+        assertEquals("Eletricista", resultado.get(0).categoria());
+        assertEquals("Ana Contratante", resultado.get(0).nomeContratante());
+        assertEquals("Boa Viagem, Recife", resultado.get(0).localAtendimento());
+        assertEquals("Próxima segunda de manhã", resultado.get(0).dataOuPeriodoSolicitado());
+        assertEquals(StatusServico.CONTRATADO, resultado.get(0).statusAtual());
+    }
+
+    @Test
+    void deveRetornarListaVaziaQuandoPrestadorNaoPossuirContratadosNaoIniciados() {
+        Long prestadorUsuarioId = 8L;
+        when(orcamentoRepository.findContratadosNaoIniciadosByPrestadorUserId(
+                prestadorUsuarioId,
+                StatusServico.CONTRATADO
+        )).thenReturn(List.of());
+
+        List<ServicoContratadoPrestadorResponseDto> resultado =
+                servicoService.buscarContratadosNaoIniciadosPorPrestador(prestadorUsuarioId);
+
+        assertNotNull(resultado);
+        assertTrue(resultado.isEmpty());}
     @Test
     void deveDeletarServicoQuandoUsuarioForODono() {
         Servico servico = criarServicoComPrestador(1L, 10L, StatusServico.DISPONIVEL);
