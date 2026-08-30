@@ -1,5 +1,6 @@
 package br.com.ufape.backend.service;
 
+import br.com.ufape.backend.dto.HistoricoServicoContratadoDto;
 import br.com.ufape.backend.dto.ServicoContratadoResponseDto;
 import br.com.ufape.backend.dto.ServicoDetalheResponseDto;
 import br.com.ufape.backend.dto.ServicoRequestDto;
@@ -12,12 +13,14 @@ import br.com.ufape.backend.model.User;
 import br.com.ufape.backend.repository.ProviderProfileRepository;
 import br.com.ufape.backend.repository.ServiceCategoryRepository;
 import br.com.ufape.backend.repository.ServicoRepository;
+import br.com.ufape.backend.repository.AvaliacaoRepository;
 import jakarta.transaction.Transactional;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
+
 
 import java.util.List;
 
@@ -27,13 +30,17 @@ public class ServicoService {
     private final ServicoRepository servicoRepository;
     private final ProviderProfileRepository providerProfileRepository;
     private final ServiceCategoryRepository categoryRepository;
+    private final AvaliacaoRepository avaliacaoRepository;
+
 
     public ServicoService(ServicoRepository servicoRepository, 
                           ProviderProfileRepository providerProfileRepository, 
-                          ServiceCategoryRepository categoryRepository) {
+                          ServiceCategoryRepository categoryRepository, 
+                          AvaliacaoRepository avaliacaoRepository) {
         this.servicoRepository = servicoRepository;
         this.providerProfileRepository = providerProfileRepository;
         this.categoryRepository = categoryRepository;
+        this.avaliacaoRepository = avaliacaoRepository; 
     }
 
     public Servico cadastrarServico(ServicoRequestDto dto) {
@@ -157,6 +164,27 @@ public class ServicoService {
         // salva o novo status
         servico.setStatus(novoStatus);
         servicoRepository.save(servico);
+    }
+
+    public List<HistoricoServicoContratadoDto> buscarHistoricoContratacoes(Long clienteId) {
+        List<Servico> servicos = servicoRepository.findByClienteId(clienteId);
+
+        return servicos.stream().map(servico -> {
+            boolean avaliado = false;
+
+            if (servico.getStatus() == StatusServico.REALIZADO) {
+                avaliado = avaliacaoRepository.existsByServicoIdAndUsuarioId(servico.getId(), clienteId);
+            }
+
+            return new HistoricoServicoContratadoDto(
+                servico.getId(),
+                servico.getTitulo(),
+                servico.getPrestador().getUser().getName(),
+                servico.getDataContratacao(),
+                servico.getStatus().name(),
+                avaliado
+            );
+        }).toList();
     }
 
 }
