@@ -1,7 +1,7 @@
 package br.com.ufape.backend.service;
 
-import br.com.ufape.backend.dto.ServicoContratadoPrestadorResponseDto;
 import br.com.ufape.backend.dto.HistoricoServicoContratadoDto;
+import br.com.ufape.backend.dto.ServicoContratadoPrestadorResponseDto;
 import br.com.ufape.backend.dto.ServicoContratadoResponseDto;
 import br.com.ufape.backend.dto.ServicoDetalheResponseDto;
 import br.com.ufape.backend.dto.ServicoRequestDto;
@@ -12,11 +12,11 @@ import br.com.ufape.backend.model.ProviderProfile;
 import br.com.ufape.backend.model.ServiceCategory;
 import br.com.ufape.backend.model.Servico;
 import br.com.ufape.backend.model.User;
+import br.com.ufape.backend.repository.AvaliacaoRepository;
 import br.com.ufape.backend.repository.OrcamentoRepository;
 import br.com.ufape.backend.repository.ProviderProfileRepository;
 import br.com.ufape.backend.repository.ServiceCategoryRepository;
 import br.com.ufape.backend.repository.ServicoRepository;
-import br.com.ufape.backend.repository.AvaliacaoRepository;
 import jakarta.transaction.Transactional;
 
 import org.springframework.http.HttpStatus;
@@ -24,8 +24,9 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
-
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Service
 public class ServicoService {
@@ -196,22 +197,23 @@ public class ServicoService {
     public List<HistoricoServicoContratadoDto> buscarHistoricoContratacoes(Long clienteId) {
         List<Servico> servicos = servicoRepository.findByClienteId(clienteId);
 
-        return servicos.stream().map(servico -> {
-            boolean avaliado = false;
+        List<Long> idsRealizados = servicos.stream()
+                .filter(servico -> servico.getStatus() == StatusServico.REALIZADO)
+                .map(Servico::getId)
+                .toList();
 
-            if (servico.getStatus() == StatusServico.REALIZADO) {
-                avaliado = avaliacaoRepository.existsByServicoIdAndUsuarioId(servico.getId(), clienteId);
-            }
+        Set<Long> servicosAvaliados = idsRealizados.isEmpty()
+                ? Set.of()
+                : new HashSet<>(avaliacaoRepository.findServicoIdsAvaliadosPeloUsuario(clienteId, idsRealizados));
 
-            return new HistoricoServicoContratadoDto(
+        return servicos.stream().map(servico -> new HistoricoServicoContratadoDto(
                 servico.getId(),
                 servico.getTitulo(),
                 servico.getPrestador().getUser().getName(),
                 servico.getDataContratacao(),
-                servico.getStatus().name(),
-                avaliado
-            );
-        }).toList();
+                servico.getStatus(),
+                servicosAvaliados.contains(servico.getId())
+        )).toList();
     }
 
 }

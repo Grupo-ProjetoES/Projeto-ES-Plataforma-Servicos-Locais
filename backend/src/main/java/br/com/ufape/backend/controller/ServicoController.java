@@ -3,8 +3,8 @@ package br.com.ufape.backend.controller;
 import br.com.ufape.backend.dto.AtualizarStatusServicoDto;
 import br.com.ufape.backend.dto.AvaliacaoRequestDto;
 import br.com.ufape.backend.dto.AvaliacaoResponseDto;
-import br.com.ufape.backend.dto.ServicoContratadoPrestadorResponseDto;
 import br.com.ufape.backend.dto.HistoricoServicoContratadoDto;
+import br.com.ufape.backend.dto.ServicoContratadoPrestadorResponseDto;
 import br.com.ufape.backend.dto.ServicoContratadoResponseDto;
 import br.com.ufape.backend.dto.ServicoDetalheResponseDto;
 import br.com.ufape.backend.dto.ServicoRequestDto;
@@ -119,11 +119,12 @@ public class ServicoController {
     
     @GetMapping("/contratados/historico")
     public ResponseEntity<List<HistoricoServicoContratadoDto>> consultarHistorico(
-        @AuthenticationPrincipal User usuarioLogado) {
-    
-    List<HistoricoServicoContratadoDto> historico = servicoService.buscarHistoricoContratacoes(usuarioLogado.getId());
-    
-    return ResponseEntity.ok(historico);
+            @AuthenticationPrincipal User usuarioLogado) {
+
+        List<HistoricoServicoContratadoDto> historico =
+                servicoService.buscarHistoricoContratacoes(usuarioLogado.getId());
+
+        return ResponseEntity.ok(historico);
     }
 
 }

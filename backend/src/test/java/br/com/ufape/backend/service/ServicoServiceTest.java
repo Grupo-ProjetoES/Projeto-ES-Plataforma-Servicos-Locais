@@ -568,6 +568,7 @@ class ServicoServiceTest {
 
         assertEquals(HttpStatus.BAD_REQUEST, exception.getStatusCode());
     }
+
     @Test
     void deveBuscarHistoricoDeContratacoesComSucesso() {
         Long clienteId = 10L;
@@ -593,8 +594,9 @@ class ServicoServiceTest {
 
         when(servicoRepository.findByClienteId(clienteId))
                 .thenReturn(List.of(servicoRealizado, servicoEmAndamento));
-        
-        when(avaliacaoRepository.existsByServicoIdAndUsuarioId(1L, clienteId)).thenReturn(true);
+
+        when(avaliacaoRepository.findServicoIdsAvaliadosPeloUsuario(clienteId, List.of(1L)))
+                .thenReturn(List.of(1L));
 
         List<HistoricoServicoContratadoDto> resultado = servicoService.buscarHistoricoContratacoes(clienteId);
 
@@ -603,19 +605,48 @@ class ServicoServiceTest {
         assertEquals(1L, resultado.get(0).id());
         assertEquals("Instalação Elétrica", resultado.get(0).tituloServico());
         assertEquals("Carlos Prestador", resultado.get(0).nomePrestador());
-        assertEquals("REALIZADO", resultado.get(0).status());
+        assertEquals(LocalDateTime.of(2026, 8, 20, 10, 0), resultado.get(0).dataContratacao());
+        assertEquals(StatusServico.REALIZADO, resultado.get(0).status());
         assertTrue(resultado.get(0).avaliado());
 
         assertEquals(2L, resultado.get(1).id());
         assertEquals("Manutenção Hidráulica", resultado.get(1).tituloServico());
-        assertEquals("EM_ANDAMENTO", resultado.get(1).status());
+        assertEquals(StatusServico.EM_ANDAMENTO, resultado.get(1).status());
         assertFalse(resultado.get(1).avaliado()); // Garante que é false por padrão
     }
-    
+
+    @Test
+    void deveRetornarAvaliadoFalsoQuandoServicoRealizadoAindaNaoFoiAvaliado() {
+        Long clienteId = 10L;
+
+        User prestadorUser = new User();
+        prestadorUser.setName("Carlos Prestador");
+        ProviderProfile perfil = new ProviderProfile();
+        perfil.setUser(prestadorUser);
+
+        Servico servicoRealizado = new Servico();
+        ReflectionTestUtils.setField(servicoRealizado, "id", 1L);
+        servicoRealizado.setTitulo("Instalação Elétrica");
+        servicoRealizado.setPrestador(perfil);
+        servicoRealizado.setStatus(StatusServico.REALIZADO);
+        servicoRealizado.setDataContratacao(LocalDateTime.of(2026, 8, 20, 10, 0));
+
+        when(servicoRepository.findByClienteId(clienteId))
+                .thenReturn(List.of(servicoRealizado));
+        when(avaliacaoRepository.findServicoIdsAvaliadosPeloUsuario(clienteId, List.of(1L)))
+                .thenReturn(List.of());
+
+        List<HistoricoServicoContratadoDto> resultado = servicoService.buscarHistoricoContratacoes(clienteId);
+
+        assertEquals(1, resultado.size());
+        assertEquals(StatusServico.REALIZADO, resultado.get(0).status());
+        assertFalse(resultado.get(0).avaliado());
+    }
+
     @Test
     void deveRetornarHistoricoVazioQuandoClienteNaoTiverContratacoes() {
         Long clienteId = 99L;
-        
+
         when(servicoRepository.findByClienteId(clienteId)).thenReturn(List.of());
 
         List<HistoricoServicoContratadoDto> resultado = servicoService.buscarHistoricoContratacoes(clienteId);
@@ -623,7 +654,6 @@ class ServicoServiceTest {
         assertNotNull(resultado);
         assertTrue(resultado.isEmpty());
     }
-
 
     private Servico criarServicoComPrestador(Long idServico, Long idPrestador, StatusServico status) {
         User prestadorUser = new User();

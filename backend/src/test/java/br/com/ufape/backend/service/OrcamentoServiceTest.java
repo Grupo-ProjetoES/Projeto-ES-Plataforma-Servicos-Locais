@@ -269,6 +269,7 @@ class OrcamentoServiceTest {
         assertEquals("ACEITO", resultado.statusResposta());
         assertEquals(solicitante, servico.getCliente());
         assertEquals(StatusServico.CONTRATADO, servico.getStatus());
+        assertNotNull(servico.getDataContratacao());
     }
 
     @Test
