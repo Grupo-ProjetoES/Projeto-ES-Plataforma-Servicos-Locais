@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 import jakarta.transaction.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -128,6 +129,7 @@ public class OrcamentoService {
         orcamento.setStatusResposta("ACEITO");
         servico.setCliente(clienteAutenticado);
         servico.setStatus(StatusServico.CONTRATADO);
+        servico.setDataContratacao(LocalDateTime.now());
         Orcamento orcamentoAtualizado = orcamentoRepository.save(orcamento);
 
         return toResponseDto(orcamentoAtualizado);

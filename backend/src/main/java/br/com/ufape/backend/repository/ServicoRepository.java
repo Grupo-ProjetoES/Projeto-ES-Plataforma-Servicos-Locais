@@ -34,4 +34,6 @@ public interface ServicoRepository extends JpaRepository<Servico, Long> {
         @Param("usuarioId") Long usuarioId,
         @Param("statuses") List<StatusServico> statuses
     );
+    
+    List<Servico> findByClienteId(Long clienteId);
 }

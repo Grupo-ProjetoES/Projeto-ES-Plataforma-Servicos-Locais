@@ -25,6 +25,7 @@ public class SecurityConfig {
 
     private final SecurityFilter securityFilter;
     private final AuthenticationEntryPointHandler authenticationEntryPointHandler;
+    private static final String PRESTADOR = "PRESTADOR";
 
     public SecurityConfig(SecurityFilter securityFilter, AuthenticationEntryPointHandler authenticationEntryPointHandler) {
         this.securityFilter = securityFilter;
@@ -49,12 +50,12 @@ public class SecurityConfig {
                             .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                             .requestMatchers("/auth/register", "/auth/login", "/auth/logout", "/error").permitAll()
                             .requestMatchers("/admin/**").hasRole("ADMIN")
-                            .requestMatchers(HttpMethod.POST, "/servicos").hasRole("PRESTADOR")
+                            .requestMatchers(HttpMethod.POST, "/servicos").hasRole(PRESTADOR)
                             .requestMatchers(HttpMethod.POST, "/servicos/*/avaliacoes").authenticated()
                             .requestMatchers(HttpMethod.GET, "/servicos/contratados/prestador").hasRole("PRESTADOR")
                             .requestMatchers(HttpMethod.GET, "/servicos/contratados").authenticated()
                             .requestMatchers(HttpMethod.GET, "/servicos/**").authenticated()
-                            .requestMatchers(HttpMethod.GET, "/orcamentos/recebidos").hasRole("PRESTADOR")
+                            .requestMatchers(HttpMethod.GET, "/orcamentos/recebidos").hasRole(PRESTADOR)
                             .requestMatchers(HttpMethod.POST, "/orcamentos").authenticated()
                             .anyRequest().authenticated()
                     )
