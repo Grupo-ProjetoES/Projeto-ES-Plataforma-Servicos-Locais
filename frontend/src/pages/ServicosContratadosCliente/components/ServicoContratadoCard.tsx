@@ -12,7 +12,7 @@ export default function ServicoContratadoCard({
   onVerDetalhes,
   onAvaliar,
 }: ServicoContratadoCardProps) {
-  const concluido = servico.statusAtual === 'CONCLUIDO';
+  const concluido = servico.statusAtual === 'REALIZADO';
 
   return (
     <article className="servico-contratado-card">

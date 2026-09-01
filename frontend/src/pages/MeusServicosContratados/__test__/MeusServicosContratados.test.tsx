@@ -2,58 +2,53 @@ import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { BrowserRouter } from 'react-router-dom';
 import { beforeEach, describe, expect, test, vi } from 'vitest';
-import type { ServicoPrestadorItem } from '../../../models/servico-prestador.model';
-import type { StatusServico } from '../../../models/servico-status.enum';
-import { servicoService } from '../../../services/servico.service';
+import type { ServicoContratadoPrestador } from '../../../models/servico-contratado-prestador.model';
+import { servicoContratadoService } from '../../../services/servico-contratado.service';
 import MeusServicosContratados from '../MeusServicosContratados';
 
-// Mock do serviço de serviços
-vi.mock('../../../services/servico.service', () => ({
-  servicoService: {
-    buscarServicosPrestador: vi.fn(),
-    atualizarStatus: vi.fn(),
+vi.mock('../../../services/servico-contratado.service', () => ({
+  servicoContratadoService: {
+    listarDoPrestador: vi.fn(),
   },
 }));
 
-// Mock do card de serviço do prestador
-vi.mock('../components/ServicoPrestadorCard', () => ({
+vi.mock('../components/ServicoContratadoPrestadorCard', () => ({
   default: ({
     servico,
-    processandoId,
     onAtualizarStatus,
   }: {
-    servico: ServicoPrestadorItem;
-    processandoId: number | null;
-    onAtualizarStatus: (id: number, novoStatus: StatusServico) => void;
+    servico: ServicoContratadoPrestador;
+    onAtualizarStatus: (id: number) => void;
   }) => (
-    <div data-testid="servico-prestador-card">
-      <h3>{servico.titulo}</h3>
-      <span>Status: {servico.status}</span>
-      <button
-        type="button"
-        disabled={processandoId === servico.id}
-        onClick={() => onAtualizarStatus(servico.id, 'EM_ANDAMENTO' as StatusServico)}
-      >
-        Mudar para Em Andamento
+    <div data-testid="servico-contratado-prestador-card">
+      <h2>{servico.titulo}</h2>
+      <span>Contratante: {servico.nomeContratante}</span>
+      <span>Data: {servico.dataOuPeriodoSolicitado}</span>
+      <button type="button" onClick={() => onAtualizarStatus(servico.id)}>
+        Atualizar status
       </button>
     </div>
   ),
 }));
 
-const mockServicosPrestador: ServicoPrestadorItem[] = [
+const mockNavigate = vi.fn();
+vi.mock('react-router-dom', async () => {
+  const actual = await vi.importActual('react-router-dom');
+  return {
+    ...actual,
+    useNavigate: () => mockNavigate,
+  };
+});
+
+const mockServicosPrestador: ServicoContratadoPrestador[] = [
   {
     id: 1,
     titulo: 'Manutenção Preventiva de Ar Condicionado',
-    descricao: 'Higienização e recarga de gás',
     categoria: 'CLIMATIZACAO',
-    bairro: 'Centro',
-    cidade: 'Arcoverde',
-    formaCobranca: 'VALOR_FIXO_TOTAL',
-    nomePrestador: 'Joran Lage',
-    telefonePrestador: '87999999999',
-    descricaoPrestador: 'Técnico certificado',
-    status: 'PENDENTE' as StatusServico,
-    nomeCliente: 'Maria Clara',
+    nomeContratante: 'Maria Clara',
+    localAtendimento: 'Centro, Arcoverde',
+    dataOuPeriodoSolicitado: '2026-09-10 pela manhã',
+    statusAtual: 'CONTRATADO',
   },
 ];
 
@@ -69,85 +64,75 @@ describe('Página MeusServicosContratados (Prestador)', () => {
       </BrowserRouter>
     );
 
-  test('deve exibir o estado de carregamento e listar os serviços do prestador', async () => {
-    vi.mocked(servicoService.buscarServicosPrestador).mockResolvedValueOnce(
-      mockServicosPrestador as unknown as never
+  test('deve exibir o estado de carregamento e listar os serviços sob responsabilidade do prestador', async () => {
+    vi.mocked(servicoContratadoService.listarDoPrestador).mockResolvedValueOnce(
+      mockServicosPrestador
     );
 
     renderComponent();
 
-    expect(screen.getByText('Carregando serviços...')).toBeInTheDocument();
+    expect(
+      screen.getByText('Carregando serviços sob sua responsabilidade...')
+    ).toBeInTheDocument();
 
     await waitFor(() => {
       expect(
         screen.getByText('Manutenção Preventiva de Ar Condicionado')
       ).toBeInTheDocument();
-      expect(screen.getByTestId('servico-prestador-card')).toBeInTheDocument();
+      expect(screen.getByText('Contratante: Maria Clara')).toBeInTheDocument();
+      expect(screen.getByText('Data: 2026-09-10 pela manhã')).toBeInTheDocument();
+      expect(screen.getByTestId('servico-contratado-prestador-card')).toBeInTheDocument();
     });
   });
 
-  test('deve exibir o estado vazio quando o prestador não possuir serviços sob sua responsabilidade', async () => {
-    vi.mocked(servicoService.buscarServicosPrestador).mockResolvedValueOnce([] as never);
+  test('deve exibir o estado vazio quando o prestador não possuir serviços não iniciados', async () => {
+    vi.mocked(servicoContratadoService.listarDoPrestador).mockResolvedValueOnce([]);
 
     renderComponent();
 
     await waitFor(() => {
       expect(
-        screen.getByText('Você não possui serviços contratados no momento.')
+        screen.getByText('Você não possui serviços contratados não iniciados no momento.')
       ).toBeInTheDocument();
     });
   });
 
-  test('deve exibir mensagem de erro se o carregamento dos serviços falhar', async () => {
-    vi.mocked(servicoService.buscarServicosPrestador).mockRejectedValueOnce(
-      new Error('Erro ao carregar')
+  test('deve exibir mensagem de erro retornada pela API ao falhar o carregamento', async () => {
+    vi.mocked(servicoContratadoService.listarDoPrestador).mockRejectedValueOnce({
+      isAxiosError: true,
+      response: { data: { message: 'Sessão expirada. Faça login novamente.' } },
+    });
+
+    renderComponent();
+
+    await waitFor(() => {
+      expect(
+        screen.getByText('Sessão expirada. Faça login novamente.')
+      ).toBeInTheDocument();
+    });
+  });
+
+  test('deve utilizar a mensagem de erro padrão quando a falha não vier da API', async () => {
+    vi.mocked(servicoContratadoService.listarDoPrestador).mockRejectedValueOnce(
+      new Error('Erro genérico')
     );
 
     renderComponent();
 
     await waitFor(() => {
       expect(
-        screen.getByText('Não foi possível carregar seus serviços contratados.')
+        screen.getByText(
+          'Não foi possível carregar os serviços sob sua responsabilidade. Tente novamente.'
+        )
       ).toBeInTheDocument();
     });
   });
 
-  test('deve atualizar o status do serviço com sucesso após confirmação do usuário', async () => {
+  test('deve navegar para o fluxo de atualização de status ao selecionar um serviço', async () => {
     const user = userEvent.setup();
-    vi.mocked(servicoService.buscarServicosPrestador).mockResolvedValueOnce(
-      mockServicosPrestador as unknown as never
+    vi.mocked(servicoContratadoService.listarDoPrestador).mockResolvedValueOnce(
+      mockServicosPrestador
     );
-    vi.mocked(servicoService.atualizarStatus).mockResolvedValueOnce({} as never);
-
-    // Simula confirmação do modal de janela
-    vi.spyOn(window, 'confirm').mockReturnValueOnce(true);
-
-    renderComponent();
-
-    await waitFor(() => {
-      expect(screen.getByText('Status: PENDENTE')).toBeInTheDocument();
-    });
-
-    const btnAtualizar = screen.getByRole('button', {
-      name: /mudar para em andamento/i,
-    });
-    await user.click(btnAtualizar);
-
-    await waitFor(() => {
-      expect(servicoService.atualizarStatus).toHaveBeenCalledWith(1, 'EM_ANDAMENTO');
-      expect(screen.getByText('Status atualizado com sucesso!')).toBeInTheDocument();
-      expect(screen.getByText('Status: EM_ANDAMENTO')).toBeInTheDocument();
-    });
-  });
-
-  test('não deve chamar a API de atualização de status se o usuário cancelar o confirm', async () => {
-    const user = userEvent.setup();
-    vi.mocked(servicoService.buscarServicosPrestador).mockResolvedValueOnce(
-      mockServicosPrestador as unknown as never
-    );
-
-    // Simula cancelamento no window.confirm
-    vi.spyOn(window, 'confirm').mockReturnValueOnce(false);
 
     renderComponent();
 
@@ -157,42 +142,10 @@ describe('Página MeusServicosContratados (Prestador)', () => {
       ).toBeInTheDocument();
     });
 
-    const btnAtualizar = screen.getByRole('button', {
-      name: /mudar para em andamento/i,
-    });
-    await user.click(btnAtualizar);
+    await user.click(screen.getByRole('button', { name: /atualizar status/i }));
 
-    expect(servicoService.atualizarStatus).not.toHaveBeenCalled();
-  });
-
-  test('deve exibir mensagem de erro retornada pela API ao falhar transição de status', async () => {
-    const user = userEvent.setup();
-    vi.mocked(servicoService.buscarServicosPrestador).mockResolvedValueOnce(
-      mockServicosPrestador as unknown as never
-    );
-
-    const mockAxiosError = {
-      response: { data: { message: 'Transição de status não permitida.' } },
-    };
-    vi.mocked(servicoService.atualizarStatus).mockRejectedValueOnce(mockAxiosError);
-
-    vi.spyOn(window, 'confirm').mockReturnValueOnce(true);
-
-    renderComponent();
-
-    await waitFor(() => {
-      expect(
-        screen.getByText('Manutenção Preventiva de Ar Condicionado')
-      ).toBeInTheDocument();
-    });
-
-    const btnAtualizar = screen.getByRole('button', {
-      name: /mudar para em andamento/i,
-    });
-    await user.click(btnAtualizar);
-
-    await waitFor(() => {
-      expect(screen.getByText('Transição de status não permitida.')).toBeInTheDocument();
+    expect(mockNavigate).toHaveBeenCalledWith('/meus-servicos/contratados/1', {
+      state: mockServicosPrestador[0],
     });
   });
 });

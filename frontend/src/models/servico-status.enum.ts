@@ -1,17 +1,15 @@
-export type StatusServico = 'PENDENTE' | 'EM_ANDAMENTO' | 'CONCLUIDO' | 'CANCELADO';
+export type StatusServico = 'DISPONIVEL' | 'CONTRATADO' | 'EM_ANDAMENTO' | 'REALIZADO';
 
-// Mapeamento de rótulos amigáveis para a interface
 export const STATUS_SERVICO_LABELS: Record<StatusServico, string> = {
-  PENDENTE: 'Pendente',
+  DISPONIVEL: 'Disponível',
+  CONTRATADO: 'Contratado',
   EM_ANDAMENTO: 'Em Andamento',
-  CONCLUIDO: 'Concluído',
-  CANCELADO: 'Cancelado',
+  REALIZADO: 'Realizado',
 };
 
-// Mapeamento das transições permitidas para cada status
 export const TRANSOES_PERMITIDAS: Record<StatusServico, StatusServico[]> = {
-  PENDENTE: ['EM_ANDAMENTO', 'CANCELADO'],
-  EM_ANDAMENTO: ['CONCLUIDO', 'CANCELADO'],
-  CONCLUIDO: [],
-  CANCELADO: [],
+  DISPONIVEL: [],
+  CONTRATADO: ['EM_ANDAMENTO'],
+  EM_ANDAMENTO: ['REALIZADO'],
+  REALIZADO: [],
 };

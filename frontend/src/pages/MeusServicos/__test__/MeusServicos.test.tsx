@@ -173,7 +173,7 @@ describe('Página MeusServicos (Gerenciamento do Prestador)', () => {
       name: /serviços contratados/i,
     });
     await user.click(btnsContratados[0]);
-    expect(mockNavigate).toHaveBeenCalledWith('/meus-servicos/contratados/1');
+    expect(mockNavigate).toHaveBeenCalledWith('/meus-servicos/contratados');
   });
 
   test('deve navegar para a tela de cadastro ao clicar no botão "+ Novo Serviço"', async () => {

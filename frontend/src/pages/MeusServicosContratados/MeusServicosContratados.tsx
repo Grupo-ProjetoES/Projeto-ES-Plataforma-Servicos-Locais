@@ -52,7 +52,10 @@ export default function MeusServicosContratados() {
   }, []);
 
   const handleAtualizarStatus = (id: number) => {
-    navigate(`/meus-servicos/contratados/${id}`);
+    const servicoSelecionado = servicos.find((servico) => servico.id === id);
+    navigate(`/meus-servicos/contratados/${id}`, {
+      state: servicoSelecionado,
+    });
   };
 
   return (
