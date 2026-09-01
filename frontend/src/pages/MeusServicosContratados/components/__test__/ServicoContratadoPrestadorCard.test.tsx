@@ -25,7 +25,7 @@ describe('ServicoContratadoPrestadorCard', () => {
 
     expect(screen.getByText('Pintura residencial')).toBeInTheDocument();
     expect(screen.getByText('PINTURA')).toBeInTheDocument();
-    expect(screen.getByText('CONTRATADO')).toBeInTheDocument();
+    expect(screen.getByText('Não iniciado')).toBeInTheDocument();
     expect(screen.getByText('Ana Souza')).toBeInTheDocument();
     expect(screen.getByText('Boa Viagem, Recife')).toBeInTheDocument();
     expect(screen.getByText('Semana de 2026-09-14')).toBeInTheDocument();

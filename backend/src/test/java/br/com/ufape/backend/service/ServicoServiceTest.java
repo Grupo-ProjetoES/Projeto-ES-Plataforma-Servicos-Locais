@@ -455,7 +455,7 @@ class ServicoServiceTest {
 
         when(orcamentoRepository.findContratadosNaoIniciadosByPrestadorUserId(
                 prestadorUsuarioId,
-                StatusServico.CONTRATADO
+                List.of(StatusServico.CONTRATADO, StatusServico.EM_ANDAMENTO)
         )).thenReturn(List.of(orcamento));
 
         List<ServicoContratadoPrestadorResponseDto> resultado =
@@ -476,7 +476,7 @@ class ServicoServiceTest {
         Long prestadorUsuarioId = 8L;
         when(orcamentoRepository.findContratadosNaoIniciadosByPrestadorUserId(
                 prestadorUsuarioId,
-                StatusServico.CONTRATADO
+                List.of(StatusServico.CONTRATADO, StatusServico.EM_ANDAMENTO)
         )).thenReturn(List.of());
 
         List<ServicoContratadoPrestadorResponseDto> resultado =
