@@ -52,7 +52,7 @@ export default function HistoricoServicosContratados() {
   }, []);
 
   const handleAvaliar = (servicoId: number) => {
-    navigate(`/avaliar/${servicoId}`);
+    navigate(`/servicos/${servicoId}/avaliar-prestador`);
   };
 
   return (

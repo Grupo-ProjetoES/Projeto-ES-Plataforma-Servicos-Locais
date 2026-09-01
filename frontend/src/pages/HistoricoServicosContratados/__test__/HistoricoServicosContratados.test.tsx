@@ -142,7 +142,7 @@ describe('Página HistoricoServicosContratados (Cliente)', () => {
     const botaoAvaliar = screen.getByRole('button', { name: /avaliar prestador/i });
     await user.click(botaoAvaliar);
 
-    expect(mockNavigate).toHaveBeenCalledWith('/avaliar/2');
+    expect(mockNavigate).toHaveBeenCalledWith('/servicos/2/avaliar-prestador');
   });
 
   test('deve navegar para o serviço ao clicar no botão ver serviço', async () => {
