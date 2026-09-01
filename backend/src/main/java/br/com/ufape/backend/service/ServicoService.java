@@ -106,7 +106,7 @@ public class ServicoService {
     public List<ServicoContratadoResponseDto> buscarContratadosPorCliente(Long usuarioId) {
         List<Servico> servicos = servicoRepository.findContratadosByClienteId(
                 usuarioId,
-                List.of(StatusServico.CONTRATADO, StatusServico.EM_ANDAMENTO, StatusServico.REALIZADO)
+                List.of(StatusServico.CONTRATADO, StatusServico.EM_ANDAMENTO)
         );
 
         return servicos.stream().map(s -> new ServicoContratadoResponseDto(

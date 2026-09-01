@@ -89,13 +89,6 @@ export default function ServicoDetalhe() {
             <div className="servico-acoes">
               <button
                 type="button"
-                className="btn-avaliar-prestador"
-                onClick={() => navigate(`/servicos/${servico.id}/avaliar-prestador`)}
-              >
-                Avaliar prestador
-              </button>
-              <button
-                type="button"
                 className="btn-solicitar-orcamento"
                 onClick={() => navigate(`/servicos/${servico.id}/solicitar-orcamento`)}
               >

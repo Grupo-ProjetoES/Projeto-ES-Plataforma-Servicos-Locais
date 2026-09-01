@@ -15,6 +15,7 @@ import OrcamentosRecebidos from '../pages/OrcamentosRecebidos/OrcamentosRecebido
 import MeusOrcamentosSolicitados from '../pages/MeusOrcamentosSolicitados/MeusOrcamentosSolicitados';
 import MeusServicosContratados from '../pages/MeusServicosContratados/MeusServicosContratados';
 import AtualizarStatusServico from '../pages/AtualizarStatusServico/AtualizarStatusServico';
+import HistoricoServicosContratados from '../pages/HistoricoServicosContratados/HistoricoServicosContratados';
 
 export default function AppRoutes() {
   return (
@@ -42,6 +43,7 @@ export default function AppRoutes() {
 
       <Route element={<PrivateRoute allowedRoles={['USER']} requireRole />}>
         <Route path="/meus-servicos-contratados" element={<ServicosContratadosCliente />} />
+        <Route path="/historico" element={<HistoricoServicosContratados />} />
       </Route>
 
       <Route element={<PrivateRoute allowedRoles={['PRESTADOR']} requireRole />}>

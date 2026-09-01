@@ -339,7 +339,7 @@ class ServicoServiceTest {
 
         when(servicoRepository.findContratadosByClienteId(
                 clienteId,
-                List.of(StatusServico.CONTRATADO, StatusServico.EM_ANDAMENTO, StatusServico.REALIZADO)
+                List.of(StatusServico.CONTRATADO, StatusServico.EM_ANDAMENTO)
         )).thenReturn(List.of(servico));
 
         List<ServicoContratadoResponseDto> resultado = servicoService.buscarContratadosPorCliente(clienteId);
@@ -377,7 +377,7 @@ class ServicoServiceTest {
 
         when(servicoRepository.findContratadosByClienteId(
                 clienteId,
-                List.of(StatusServico.CONTRATADO, StatusServico.EM_ANDAMENTO, StatusServico.REALIZADO)
+                List.of(StatusServico.CONTRATADO, StatusServico.EM_ANDAMENTO)
         )).thenReturn(List.of(servico));
 
         List<ServicoContratadoResponseDto> resultado = servicoService.buscarContratadosPorCliente(clienteId);
@@ -387,35 +387,19 @@ class ServicoServiceTest {
     }
 
     @Test
-    void deveRetornarStatusRealizadoAoBuscarServicosContratadosPorCliente() {
+    void deveNaoIncluirServicosRealizadosAoBuscarContratadosPorCliente() {
         Long clienteId = 40L;
 
-        User prestadorUser = new User();
-        prestadorUser.setName("Joao Prestador");
-
-        ProviderProfile perfil = new ProviderProfile();
-        perfil.setUser(prestadorUser);
-
-        ServiceCategory categoria = new ServiceCategory("Pedreiro");
-
-        Servico servico = new Servico();
-        ReflectionTestUtils.setField(servico, "id", 3L);
-        servico.setTitulo("Reforma de Muro");
-        servico.setCategoria(categoria);
-        servico.setLocalizacao("Ipsep");
-        servico.setAreaAtendimento("Recife");
-        servico.setPrestador(perfil);
-        servico.setStatus(StatusServico.REALIZADO);
-
+        // Serviços REALIZADO não devem aparecer em buscarContratadosPorCliente,
+        // apenas no histórico. O mock retorna lista vazia.
         when(servicoRepository.findContratadosByClienteId(
                 clienteId,
-                List.of(StatusServico.CONTRATADO, StatusServico.EM_ANDAMENTO, StatusServico.REALIZADO)
-        )).thenReturn(List.of(servico));
+                List.of(StatusServico.CONTRATADO, StatusServico.EM_ANDAMENTO)
+        )).thenReturn(List.of());
 
         List<ServicoContratadoResponseDto> resultado = servicoService.buscarContratadosPorCliente(clienteId);
 
-        assertEquals(1, resultado.size());
-        assertEquals(StatusServico.REALIZADO, resultado.get(0).statusAtual());
+        assertTrue(resultado.isEmpty());
     }
 
     @Test
@@ -423,7 +407,7 @@ class ServicoServiceTest {
         Long clienteId = 30L;
         when(servicoRepository.findContratadosByClienteId(
                 clienteId,
-                List.of(StatusServico.CONTRATADO, StatusServico.EM_ANDAMENTO, StatusServico.REALIZADO)
+                List.of(StatusServico.CONTRATADO, StatusServico.EM_ANDAMENTO)
         )).thenReturn(List.of());
 
         List<ServicoContratadoResponseDto> resultado = servicoService.buscarContratadosPorCliente(clienteId);

@@ -65,9 +65,21 @@ export default function ServicosContratadosCliente() {
       <main className="servicos-contratados-page">
         <section className="servicos-contratados-container" aria-labelledby="servicos-contratados-title">
           <header className="servicos-contratados-header">
-            <span className="servicos-contratados-eyebrow">Acompanhamento</span>
-            <h1 id="servicos-contratados-title">Meus serviços contratados</h1>
-            <p>Acompanhe o andamento dos serviços contratados e avalie os atendimentos concluídos.</p>
+            <div className="servicos-contratados-header-top">
+              <div>
+                <span className="servicos-contratados-eyebrow">Acompanhamento</span>
+                <h1 id="servicos-contratados-title">Meus serviços contratados</h1>
+                <p>Acompanhe o andamento dos serviços contratados. As avaliações são feitas no histórico após a conclusão.</p>
+              </div>
+              <button 
+                type="button" 
+                className="servicos-contratados-btn-historico"
+                onClick={() => navigate('/historico')}
+                aria-label="Ver histórico de serviços concluídos"
+              >
+                📋 Histórico
+              </button>
+            </div>
           </header>
 
           {loading && (
@@ -104,7 +116,6 @@ export default function ServicosContratadosCliente() {
                   key={servico.id}
                   servico={servico}
                   onVerDetalhes={(id) => navigate(`/servicos/${id}`)}
-                  onAvaliar={(id) => navigate(`/servicos/${id}/avaliar-prestador`)}
                 />
               ))}
             </div>

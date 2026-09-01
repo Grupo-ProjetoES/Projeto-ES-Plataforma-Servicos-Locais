@@ -1,0 +1,222 @@
+/* Container e Header da Página */
+.historico-page {
+  padding: 2rem 1rem;
+  background-color: #f8f9fa;
+  min-height: calc(100vh - 70px);
+}
+
+.historico-container {
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+.historico-page-header {
+  margin-bottom: 2rem;
+}
+
+.historico-page-header h1 {
+  font-size: 1.8rem;
+  color: #212529;
+  margin-bottom: 0.5rem;
+}
+
+.historico-page-header p {
+  color: #6c757d;
+  font-size: 1rem;
+}
+
+/* Alertas */
+.alert {
+  padding: 0.875rem 1.25rem;
+  border-radius: 6px;
+  margin-bottom: 1.5rem;
+  font-weight: 500;
+  font-size: 0.95rem;
+}
+
+.alert-danger {
+  background-color: #f8d7da;
+  color: #842029;
+  border: 1px solid #f5c2c7;
+}
+
+.alert-success {
+  background-color: #d1e7dd;
+  color: #0f5132;
+  border: 1px solid #badbcc;
+}
+
+/* Loading e Empty State */
+.historico-status-loading,
+.historico-empty-state {
+  padding: 3rem 2rem;
+  background: white;
+  border-radius: 8px;
+  text-align: center;
+  color: #6c757d;
+}
+
+.historico-status-loading {
+  animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+
+.historico-empty-state p {
+  margin: 0;
+  font-size: 1.1rem;
+  color: #6c757d;
+}
+
+/* Lista de Histórico */
+.historico-lista {
+  display: grid;
+  gap: 1.5rem;
+  grid-template-columns: 1fr;
+}
+
+@media (min-width: 768px) {
+  .historico-lista {
+    grid-template-columns: repeat(auto-fill, minmax(500px, 1fr));
+  }
+}
+
+/* Card de Histórico */
+.historico-servico-card {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.historico-servico-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.historico-servico-header {
+  padding: 1.25rem;
+  border-bottom: 1px solid #e9ecef;
+}
+
+.historico-servico-titulo-info {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  justify-content: space-between;
+}
+
+.historico-servico-titulo {
+  margin: 0;
+  font-size: 1.2rem;
+  color: #212529;
+  flex: 1;
+}
+
+/* Badge de Status */
+.historico-status-badge {
+  display: inline-block;
+  padding: 0.375rem 0.75rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+}
+
+.historico-status-badge.status-contratado {
+  background-color: #fff3cd;
+  color: #664d03;
+}
+
+.historico-status-badge.status-em-andamento {
+  background-color: #cff4fc;
+  color: #055160;
+}
+
+.historico-status-badge.status-realizado {
+  background-color: #d1e7dd;
+  color: #0f5132;
+}
+
+/* Detalhes */
+.historico-servico-detalhes {
+  padding: 1.25rem;
+  display: grid;
+  gap: 0.875rem;
+}
+
+.historico-item-detalhe {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.historico-label {
+  font-weight: 600;
+  color: #495057;
+  font-size: 0.95rem;
+}
+
+.historico-valor {
+  color: #212529;
+  font-size: 0.95rem;
+}
+
+/* Ações */
+.historico-servico-actions {
+  padding: 1rem 1.25rem;
+  border-top: 1px solid #e9ecef;
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.historico-btn-avaliar,
+.historico-btn-detalhes {
+  flex: 1;
+  min-width: 150px;
+  padding: 0.625rem 1rem;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s, transform 0.1s;
+}
+
+.historico-btn-avaliar:hover,
+.historico-btn-detalhes:hover {
+  transform: translateY(-1px);
+}
+
+.historico-btn-avaliar {
+  background-color: #ffc107;
+  color: #000;
+}
+
+.historico-btn-avaliar:hover {
+  background-color: #ffb800;
+}
+
+.historico-btn-detalhes {
+  background-color: #0d6efd;
+  color: white;
+}
+
+.historico-btn-detalhes:hover {
+  background-color: #0b5ed7;
+}
+
+.historico-btn-detalhes:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+  opacity: 0.65;
+}
