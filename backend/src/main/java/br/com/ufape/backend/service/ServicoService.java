@@ -120,11 +120,11 @@ public class ServicoService {
         )).toList();
     }
 
-    // Busca os serviços contratados sob responsabilidade do prestador que ainda não tiveram a execução iniciada
+    // Busca os serviços contratados sob responsabilidade do prestador que ainda não foram finalizados
     public List<ServicoContratadoPrestadorResponseDto> buscarContratadosNaoIniciadosPorPrestador(Long usuarioId) {
         List<Orcamento> orcamentos = orcamentoRepository.findContratadosNaoIniciadosByPrestadorUserId(
                 usuarioId,
-                StatusServico.CONTRATADO
+                List.of(StatusServico.CONTRATADO, StatusServico.EM_ANDAMENTO)
         );
 
         return orcamentos.stream().map(o -> {

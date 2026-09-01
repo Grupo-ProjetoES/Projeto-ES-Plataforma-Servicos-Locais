@@ -48,15 +48,15 @@ export default function ModalResponderOrcamento({
   } = useForm<RespostaFormData>({
     resolver: zodResolver(respostaSchema),
     defaultValues: {
-      valor: orcamento.valor_resposta != null ? Number(orcamento.valor_resposta) : undefined,
-      condicoes: orcamento.descricao_resposta || '',
+      valor: orcamento.valorResposta != null ? Number(orcamento.valorResposta) : undefined,
+      condicoes: orcamento.descricaoResposta || '',
     },
   });
 
   useEffect(() => {
     reset({
-      valor: orcamento.valor_resposta != null ? Number(orcamento.valor_resposta) : undefined,
-      condicoes: orcamento.descricao_resposta || '',
+      valor: orcamento.valorResposta != null ? Number(orcamento.valorResposta) : undefined,
+      condicoes: orcamento.descricaoResposta || '',
     });
   }, [orcamento, reset]);
 
@@ -66,8 +66,8 @@ export default function ModalResponderOrcamento({
       setErroFeedback('');
 
       await orcamentoService.responderOrcamento(orcamento.id, {
-        valor_resposta: data.valor !== undefined ? Number(data.valor) : 0,
-        descricao_resposta: data.condicoes || '',
+        valorResposta: data.valor !== undefined ? Number(data.valor) : 0,
+        descricaoResposta: data.condicoes || '',
       });
 
       setSucessoFeedback('Orçamento respondido com sucesso!');

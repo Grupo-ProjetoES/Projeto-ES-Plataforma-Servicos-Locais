@@ -251,6 +251,22 @@
   text-transform: uppercase;
 }
 
+/* Status específicos do serviço contratado */
+.servico-prestador-atendimento-status.status-contratado {
+  background-color: #fff3cd;
+  color: #664d03;
+}
+
+.servico-prestador-atendimento-status.status-em-andamento {
+  background-color: #cff4fc;
+  color: #055160;
+}
+
+.servico-prestador-atendimento-status.status-realizado {
+  background-color: #d1e7dd;
+  color: #0f5132;
+}
+
 .servico-prestador-atendimento-content {
   flex: 1;
 }

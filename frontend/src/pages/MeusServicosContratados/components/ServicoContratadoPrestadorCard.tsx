@@ -5,15 +5,33 @@ interface ServicoContratadoPrestadorCardProps {
   onAtualizarStatus: (id: number) => void;
 }
 
+function formatarStatus(status: string): string {
+  switch (status) {
+    case 'CONTRATADO':
+      return 'Não iniciado';
+    case 'EM_ANDAMENTO':
+      return 'Em andamento';
+    case 'REALIZADO':
+      return 'Concluído';
+    default:
+      return status;
+  }
+}
+
 export default function ServicoContratadoPrestadorCard({
   servico,
   onAtualizarStatus,
 }: ServicoContratadoPrestadorCardProps) {
+  const statusFormatado = formatarStatus(servico.statusAtual);
+  const classStatus = `status-${servico.statusAtual.toLowerCase().replace('_', '-')}`;
+
   return (
     <article className="servico-prestador-atendimento-card">
       <header className="servico-prestador-atendimento-header">
         <span className="servico-prestador-atendimento-categoria">{servico.categoria}</span>
-        <span className="servico-prestador-atendimento-status">{servico.statusAtual}</span>
+        <span className={`servico-prestador-atendimento-status ${classStatus}`}>
+          {statusFormatado}
+        </span>
       </header>
 
       <div className="servico-prestador-atendimento-content">

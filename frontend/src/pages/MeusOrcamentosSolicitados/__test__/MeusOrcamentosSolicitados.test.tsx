@@ -30,7 +30,7 @@ vi.mock('../components/OrcamentoSolicitadoCard', () => ({
   }) => {
     const item = orcamento as unknown as Record<string, unknown>;
     const status =
-      orcamento.status_resposta ||
+      orcamento.statusResposta ||
       (item.statusResposta as string) ||
       'PENDENTE';
 
@@ -71,7 +71,6 @@ const mockOrcamentosSolicitados: OrcamentoResponse[] = [
     descricaoNecessidade: 'Instalação de torneira de cozinha',
     descricao_necessidade: 'Instalação de torneira de cozinha',
     statusResposta: 'RESPONDIDO',
-    status_resposta: 'RESPONDIDO',
   } as unknown as OrcamentoResponse,
 ];
 

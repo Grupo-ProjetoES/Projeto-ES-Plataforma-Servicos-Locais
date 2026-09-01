@@ -10,7 +10,7 @@ export default function OrcamentoRecebidoCard({
   onResponder,
 }: OrcamentoRecebidoCardProps) {
   const temResposta =
-    orcamento.valor_resposta != null || Boolean(orcamento.descricao_resposta);
+    orcamento.valorResposta != null || Boolean(orcamento.descricaoResposta);
 
   return (
     <article className="orcamento-card">
@@ -41,17 +41,17 @@ export default function OrcamentoRecebidoCard({
       {temResposta && (
         <div className="orcamento-resposta-box">
           <strong>Sua resposta:</strong>
-          {orcamento.valor_resposta != null && (
+          {orcamento.valorResposta != null && (
             <p>
               Valor:{' '}
-              {Number(orcamento.valor_resposta).toLocaleString('pt-BR', {
+              {Number(orcamento.valorResposta).toLocaleString('pt-BR', {
                 style: 'currency',
                 currency: 'BRL',
               })}
             </p>
           )}
-          {orcamento.descricao_resposta && (
-            <p>Descrição: {orcamento.descricao_resposta}</p>
+          {orcamento.descricaoResposta && (
+            <p>Descrição: {orcamento.descricaoResposta}</p>
           )}
         </div>
       )}

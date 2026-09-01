@@ -16,7 +16,7 @@ public interface OrcamentoRepository extends JpaRepository<Orcamento, Long> {
     // Busca os orçamentos criados pelo solicitante (cliente)
     List<Orcamento> findBySolicitanteId(Long solicitanteId);
 
-    // Busca os orçamentos aceitos do prestador cujo serviço ainda não teve a execução iniciada
+    // Busca os orçamentos aceitos do prestador cujo serviço ainda não teve a execução iniciada ou esteja em andamento
     @Query("""
         SELECT o
         FROM Orcamento o
@@ -25,10 +25,10 @@ public interface OrcamentoRepository extends JpaRepository<Orcamento, Long> {
         JOIN FETCH o.solicitante
         WHERE o.prestador.user.id = :usuarioId
           AND o.statusResposta = 'ACEITO'
-          AND s.status = :status
+          AND s.status IN :statuses
         """)
     List<Orcamento> findContratadosNaoIniciadosByPrestadorUserId(
         @Param("usuarioId") Long usuarioId,
-        @Param("status") StatusServico status
+        @Param("statuses") java.util.List<StatusServico> statuses
     );
 }

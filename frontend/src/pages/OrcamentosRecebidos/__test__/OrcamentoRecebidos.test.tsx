@@ -29,7 +29,7 @@ vi.mock('../components/OrcamentoRecebidoCard', () => ({
       '';
     const status =
       (item.statusResposta as string) ||
-      orcamento.status_resposta ||
+      orcamento.statusResposta ||
       'PENDENTE';
 
     return (

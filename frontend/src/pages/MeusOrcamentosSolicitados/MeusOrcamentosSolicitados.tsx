@@ -67,7 +67,7 @@ export default function MeusOrcamentosSolicitados() {
       setOrcamentos((prev) =>
         prev.map((item) =>
           item.id === id
-            ? { ...item, status_resposta: acao === 'aceitar' ? 'ACEITO' : 'RECUSADO' }
+            ? { ...item, statusResposta: acao === 'aceitar' ? 'ACEITO' : 'RECUSADO' }
             : item
         )
       );
@@ -81,7 +81,7 @@ export default function MeusOrcamentosSolicitados() {
 
   const servicosContratados = new Set(
     orcamentos
-      .filter((item) => item.status_resposta === 'ACEITO')
+      .filter((item) => item.statusResposta === 'ACEITO')
       .map((item) => item.servicoId)
   );
 
