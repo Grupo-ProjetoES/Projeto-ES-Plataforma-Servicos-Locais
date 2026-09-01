@@ -2,6 +2,7 @@ import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { beforeEach, describe, expect, test, vi } from 'vitest';
+import type { ServicoDetalhe } from '../../../models/servico-detalhe.model';
 import { servicoService } from '../../../services/servico.service';
 import AtualizarStatusServico from '../AtualizarStatusServico';
 
@@ -22,7 +23,7 @@ vi.mock('react-router-dom', async () => {
   };
 });
 
-const mockServico = {
+const mockServico: ServicoDetalhe = {
   id: 12,
   titulo: 'Instalação de ventilador de teto',
   descricao: 'Instalação com revisão da fiação existente.',
