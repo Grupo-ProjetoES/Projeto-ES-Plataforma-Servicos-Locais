@@ -1,4 +1,4 @@
-export type StatusServicoContratado = 'CONTRATADO' | 'EM_ANDAMENTO' | 'CONCLUIDO';
+export type StatusServicoContratado = 'CONTRATADO' | 'EM_ANDAMENTO' | 'REALIZADO';
 
 export interface ServicoContratado {
   id: number;

@@ -1,7 +1,7 @@
 import api from './api';
-import type { ServicoResumo } from '../models/servico-resumo.model';
 import type { ServicoDetalhe } from '../models/servico-detalhe.model';
 import type { ServicoFiltro } from '../models/servico-filtro.model';
+import type { ServicoResumo } from '../models/servico-resumo.model';
 import type { StatusServico } from '../models/servico-status.enum';
 
 export interface StatusUpdatePayload {
@@ -24,17 +24,9 @@ class ServicoService {
     return response.data;
   }
 
-  // Lista os serviços contratados sob responsabilidade do prestador autenticado
-  async buscarServicosPrestador(): Promise<ServicoDetalhe[]> {
-    const response = await api.get<ServicoDetalhe[]>('/servicos/prestador');
-    return response.data;
-  }
-
-  // Consome PUT /api/servicos/{id}/status
-  async atualizarStatus(id: string | number, status: StatusServico): Promise<ServicoDetalhe> {
+  async atualizarStatus(id: string | number, status: StatusServico): Promise<void> {
     const payload: StatusUpdatePayload = { status };
-    const response = await api.put<ServicoDetalhe>(`/servicos/${id}/status`, payload);
-    return response.data;
+    await api.put(`/servicos/${id}/status`, payload);
   }
 }
 

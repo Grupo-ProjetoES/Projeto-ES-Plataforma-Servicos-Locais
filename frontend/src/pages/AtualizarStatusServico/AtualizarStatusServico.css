@@ -1,0 +1,95 @@
+.status-update-back-button {
+  margin-bottom: 24px;
+  border: none;
+  background: transparent;
+  color: #0f766e;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.status-update-card {
+  display: grid;
+  gap: 24px;
+  padding: 28px;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  background: #ffffff;
+  box-shadow: 0 10px 28px rgba(15, 23, 42, 0.06);
+}
+
+.status-update-header h2 {
+  margin: 6px 0 8px;
+  color: #0f172a;
+  font-size: 1.8rem;
+}
+
+.status-update-header p {
+  color: #64748b;
+}
+
+.status-update-eyebrow {
+  color: #0f766e;
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.status-update-summary {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 16px;
+  padding: 18px;
+  border-radius: 14px;
+  background: #f8fafc;
+}
+
+.status-update-summary div,
+.status-update-details div {
+  display: grid;
+  gap: 4px;
+}
+
+.status-update-summary span,
+.status-update-details dt {
+  color: #64748b;
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.status-update-summary strong,
+.status-update-details dd {
+  margin: 0;
+  color: #0f172a;
+}
+
+.status-update-details {
+  display: grid;
+  gap: 16px;
+  margin: 0;
+}
+
+.status-update-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  padding-top: 20px;
+  border-top: 1px solid #e2e8f0;
+}
+
+.status-update-helper,
+.status-update-state {
+  color: #64748b;
+}
+
+@media (max-width: 640px) {
+  .status-update-card {
+    padding: 20px 16px;
+  }
+
+  .status-update-actions .servico-prestador-atendimento-button {
+    width: 100%;
+  }
+}

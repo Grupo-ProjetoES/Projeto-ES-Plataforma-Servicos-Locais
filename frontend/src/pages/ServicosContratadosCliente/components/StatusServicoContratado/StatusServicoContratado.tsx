@@ -8,7 +8,7 @@ interface StatusServicoContratadoProps {
 const STATUS_LABELS: Record<Status, string> = {
   CONTRATADO: 'Contratado',
   EM_ANDAMENTO: 'Em andamento',
-  CONCLUIDO: 'Concluído',
+  REALIZADO: 'Realizado',
 };
 
 export default function StatusServicoContratado({ status }: StatusServicoContratadoProps) {
