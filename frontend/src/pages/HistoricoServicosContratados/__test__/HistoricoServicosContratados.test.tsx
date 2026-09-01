@@ -171,8 +171,9 @@ describe('Página HistoricoServicosContratados (Cliente)', () => {
     renderComponent();
 
     await waitFor(() => {
-      expect(screen.getByText('Concluído')).toBeInTheDocument();
-      expect(screen.getByText('Em andamento')).toBeInTheDocument();
+        const concluidos = screen.getAllByText('Concluído');
+        expect(concluidos.length).toBe(2);
+        expect(screen.getByText('Em andamento')).toBeInTheDocument();
     });
   });
 
