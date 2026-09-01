@@ -14,6 +14,28 @@ describe('servicoContratadoService', () => {
     vi.clearAllMocks();
   });
 
+  test('deve buscar os serviços contratados do cliente autenticado', async () => {
+    const mockResponse = [
+      {
+        id: 2,
+        servicoId: 20,
+        titulo: 'Reforma de banheiro',
+        categoria: 'HIDRAULICA',
+        bairro: 'Centro',
+        cidade: 'Recife',
+        nomePrestador: 'Paulo Encanador',
+        statusAtual: 'EM_ANDAMENTO' as const,
+      },
+    ];
+
+    vi.mocked(api.get).mockResolvedValueOnce({ data: mockResponse });
+
+    const resultado = await servicoContratadoService.listar();
+
+    expect(api.get).toHaveBeenCalledWith('/servicos/contratados');
+    expect(resultado).toEqual(mockResponse);
+  });
+
   test('deve buscar os serviços contratados não iniciados do prestador autenticado', async () => {
     const mockResponse: ServicoContratadoPrestador[] = [
       {

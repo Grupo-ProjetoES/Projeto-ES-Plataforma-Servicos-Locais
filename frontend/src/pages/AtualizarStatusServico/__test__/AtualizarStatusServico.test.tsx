@@ -52,10 +52,14 @@ describe('Página AtualizarStatusServico', () => {
 
   const renderComponent = (
     path = '/meus-servicos/contratados/12',
-    state: unknown = estadoAtendimento
+    state?: unknown
   ) =>
     render(
-      <MemoryRouter initialEntries={[{ pathname: path, state }]}>
+      <MemoryRouter
+        initialEntries={[
+          state === undefined ? path : { pathname: path, state },
+        ]}
+      >
         <Routes>
           <Route path="/meus-servicos/contratados/:id" element={<AtualizarStatusServico />} />
         </Routes>
@@ -65,7 +69,7 @@ describe('Página AtualizarStatusServico', () => {
   test('deve carregar os dados do serviço e exibir a próxima transição disponível', async () => {
     vi.mocked(servicoService.buscarPorId).mockResolvedValueOnce(mockServico);
 
-    renderComponent();
+    renderComponent('/meus-servicos/contratados/12', estadoAtendimento);
 
     expect(screen.getByRole('status')).toHaveTextContent('Carregando dados do serviço...');
 
@@ -84,7 +88,7 @@ describe('Página AtualizarStatusServico', () => {
     vi.mocked(servicoService.buscarPorId).mockResolvedValueOnce(mockServico);
     vi.mocked(servicoService.atualizarStatus).mockResolvedValueOnce();
 
-    renderComponent();
+    renderComponent('/meus-servicos/contratados/12', estadoAtendimento);
 
     await waitFor(() => {
       expect(
@@ -111,7 +115,7 @@ describe('Página AtualizarStatusServico', () => {
       response: { data: { message: 'Mudança de status não permitida.' } },
     });
 
-    renderComponent();
+    renderComponent('/meus-servicos/contratados/12', estadoAtendimento);
 
     await waitFor(() => {
       expect(
@@ -126,6 +130,71 @@ describe('Página AtualizarStatusServico', () => {
     });
   });
 
+  test('deve exibir mensagem de permissão quando a API retornar 403', async () => {
+    vi.mocked(servicoService.buscarPorId).mockRejectedValueOnce({
+      isAxiosError: true,
+      response: { status: 403 },
+    });
+
+    renderComponent('/meus-servicos/contratados/12', estadoAtendimento);
+
+    await waitFor(() => {
+      expect(screen.getByRole('alert')).toHaveTextContent(
+        'Você não tem permissão para atualizar este serviço.'
+      );
+    });
+  });
+
+  test('deve exibir mensagem de não encontrado quando a API retornar 404', async () => {
+    vi.mocked(servicoService.buscarPorId).mockRejectedValueOnce({
+      isAxiosError: true,
+      response: { status: 404 },
+    });
+
+    renderComponent('/meus-servicos/contratados/12', estadoAtendimento);
+
+    await waitFor(() => {
+      expect(screen.getByRole('alert')).toHaveTextContent(
+        'O serviço informado não foi encontrado.'
+      );
+    });
+  });
+
+  test('deve exibir mensagem genérica quando a API falhar sem detalhes conhecidos', async () => {
+    vi.mocked(servicoService.buscarPorId).mockRejectedValueOnce(new Error('Falha inesperada'));
+
+    renderComponent('/meus-servicos/contratados/12', estadoAtendimento);
+
+    await waitFor(() => {
+      expect(screen.getByRole('alert')).toHaveTextContent(
+        'Não foi possível atualizar o status do serviço. Tente novamente.'
+      );
+    });
+  });
+
+  test('deve exibir dados indisponíveis quando a rota for aberta sem state da listagem', async () => {
+    vi.mocked(servicoService.buscarPorId).mockResolvedValueOnce(mockServico);
+
+    renderComponent('/meus-servicos/contratados/12', undefined);
+
+    await waitFor(() => {
+      expect(screen.getAllByText('Não informado')).toHaveLength(2);
+    });
+  });
+
+  test('deve informar quando não houver transições disponíveis para o status atual', async () => {
+    vi.mocked(servicoService.buscarPorId).mockResolvedValueOnce(mockServico);
+
+    renderComponent('/meus-servicos/contratados/12', {
+      ...estadoAtendimento,
+      statusAtual: 'REALIZADO',
+    });
+
+    await waitFor(() => {
+      expect(screen.getByText('Nenhuma transição adicional está disponível para este serviço.')).toBeInTheDocument();
+    });
+  });
+
   test('deve exibir mensagem de serviço inválido quando o id da rota for inválido', async () => {
     renderComponent('/meus-servicos/contratados/abc', undefined);
 
@@ -137,7 +206,7 @@ describe('Página AtualizarStatusServico', () => {
     const user = userEvent.setup();
     vi.mocked(servicoService.buscarPorId).mockResolvedValueOnce(mockServico);
 
-    renderComponent();
+    renderComponent('/meus-servicos/contratados/12', estadoAtendimento);
 
     await user.click(
       screen.getByRole('button', {
