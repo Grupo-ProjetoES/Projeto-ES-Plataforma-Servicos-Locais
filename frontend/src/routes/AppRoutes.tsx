@@ -14,6 +14,7 @@ import AvaliarPrestador from '../pages/AvaliarPrestador/AvaliarPrestador';
 import OrcamentosRecebidos from '../pages/OrcamentosRecebidos/OrcamentosRecebidos';
 import MeusOrcamentosSolicitados from '../pages/MeusOrcamentosSolicitados/MeusOrcamentosSolicitados';
 import MeusServicosContratados from '../pages/MeusServicosContratados/MeusServicosContratados';
+import AtualizarStatusServico from '../pages/AtualizarStatusServico/AtualizarStatusServico';
 
 export default function AppRoutes() {
   return (
@@ -47,7 +48,8 @@ export default function AppRoutes() {
         <Route path="/servicos/cadastrar" element={<CadastroServico />} />
         <Route path="/meus-servicos" element={<MeusServicos />} />
         <Route path="/meus-servicos/orcamentos/:id" element={<OrcamentosRecebidos />} />
-        <Route path='/meus-servicos/contratados/:id' element={<MeusServicosContratados/>} />
+        <Route path="/meus-servicos/contratados" element={<MeusServicosContratados />} />
+        <Route path="/meus-servicos/contratados/:id" element={<AtualizarStatusServico />} />
       </Route>
 
       {/* Redirecionamento para rota não encontrada ou padrão */}

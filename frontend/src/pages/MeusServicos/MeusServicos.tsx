@@ -57,8 +57,8 @@ export default function MeusServicos() {
     navigate(`/meus-servicos/orcamentos/${servicoId}`);
   };
 
-  const handleVerContratados = (servicoId: number) => {
-    navigate(`/meus-servicos/contratados/${servicoId}`);
+  const handleVerContratados = (_servicoId: number) => {
+    navigate('/meus-servicos/contratados');
   };
 
   return (

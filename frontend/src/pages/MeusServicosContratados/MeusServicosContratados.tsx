@@ -1,5 +1,6 @@
 import axios from 'axios';
 import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import Logo from '../../components/Logo/Logo';
 import type { ServicoContratadoPrestador } from '../../models/servico-contratado-prestador.model';
 import { servicoContratadoService } from '../../services/servico-contratado.service';
@@ -18,6 +19,7 @@ function obterMensagemErro(error: unknown): string {
 }
 
 export default function MeusServicosContratados() {
+  const navigate = useNavigate();
   const [servicos, setServicos] = useState<ServicoContratadoPrestador[]>([]);
   const [loading, setLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState('');
@@ -49,7 +51,9 @@ export default function MeusServicosContratados() {
     };
   }, []);
 
-  const handleAtualizarStatus = (_id: number) => {};
+  const handleAtualizarStatus = (id: number) => {
+    navigate(`/meus-servicos/contratados/${id}`);
+  };
 
   return (
     <>
