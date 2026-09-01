@@ -92,22 +92,6 @@ describe('Página ServicoDetalhe', () => {
     expect(mockNavigate).toHaveBeenCalledWith('/servicos');
   });
 
-  test('deve navegar para a tela de avaliação do prestador ao clicar no botão correspondente', async () => {
-    const user = userEvent.setup();
-    vi.mocked(servicoService.buscarPorId).mockResolvedValueOnce(mockServico);
-
-    renderComponent();
-
-    await waitFor(() => {
-      expect(screen.getByText('Pintura Residencial Interna')).toBeInTheDocument();
-    });
-
-    const btnAvaliar = screen.getByRole('button', { name: /avaliar prestador/i });
-    await user.click(btnAvaliar);
-
-    expect(mockNavigate).toHaveBeenCalledWith('/servicos/1/avaliar-prestador');
-  });
-
   test('deve navegar para a tela de solicitação de orçamento ao clicar no botão correspondente', async () => {
     const user = userEvent.setup();
     vi.mocked(servicoService.buscarPorId).mockResolvedValueOnce(mockServico);

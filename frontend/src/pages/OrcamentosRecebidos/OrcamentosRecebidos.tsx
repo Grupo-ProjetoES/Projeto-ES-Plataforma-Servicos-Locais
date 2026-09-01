@@ -45,9 +45,9 @@ export default function OrcamentosRecebidos() {
         item.id === orcamentoId
           ? {
               ...item,
-              valor_resposta: valor,
-              descricao_resposta: condicoes,
-              status_resposta: 'RESPONDIDO',
+              valorResposta: valor,
+              descricaoResposta: condicoes,
+              statusResposta: 'RESPONDIDO',
             }
           : item,
       ),

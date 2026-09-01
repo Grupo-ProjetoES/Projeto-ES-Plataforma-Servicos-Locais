@@ -92,7 +92,7 @@ describe('Página MeusServicosContratados (Prestador)', () => {
 
     await waitFor(() => {
       expect(
-        screen.getByText('Você não possui serviços contratados não iniciados no momento.')
+        screen.getByText('Você não possui serviços contratados no momento.')
       ).toBeInTheDocument();
     });
   });

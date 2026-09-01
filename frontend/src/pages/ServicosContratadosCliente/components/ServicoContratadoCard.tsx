@@ -4,16 +4,12 @@ import StatusServicoContratado from './StatusServicoContratado/StatusServicoCont
 interface ServicoContratadoCardProps {
   servico: ServicoContratado;
   onVerDetalhes: (id: number) => void;
-  onAvaliar: (id: number) => void;
 }
 
 export default function ServicoContratadoCard({
   servico,
   onVerDetalhes,
-  onAvaliar,
 }: ServicoContratadoCardProps) {
-  const concluido = servico.statusAtual === 'REALIZADO';
-
   return (
     <article className="servico-contratado-card">
       <header className="servico-contratado-card-header">
@@ -45,16 +41,6 @@ export default function ServicoContratadoCard({
         >
           Ver detalhes
         </button>
-
-        {concluido && (
-          <button
-            type="button"
-            className="servico-contratado-button-primary"
-            onClick={() => onAvaliar(servico.id)}
-          >
-            Avaliar prestador
-          </button>
-        )}
       </footer>
     </article>
   );

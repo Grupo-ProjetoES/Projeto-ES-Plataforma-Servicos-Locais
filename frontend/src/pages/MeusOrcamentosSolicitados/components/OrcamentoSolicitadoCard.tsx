@@ -8,11 +8,11 @@ interface OrcamentoSolicitadoCardProps {
 }
 
 function extrairStatus(orcamento: OrcamentoResponse): string {
-  if (orcamento.status_resposta) {
-    return orcamento.status_resposta;
+  if (orcamento.statusResposta) {
+    return orcamento.statusResposta;
   }
   const temResposta =
-    orcamento.valor_resposta != null || Boolean(orcamento.descricao_resposta);
+    orcamento.valorResposta != null || Boolean(orcamento.descricaoResposta);
   return temResposta ? 'RESPONDIDO' : 'PENDENTE';
 }
 
@@ -37,7 +37,7 @@ export default function OrcamentoSolicitadoCard({
 }: OrcamentoSolicitadoCardProps) {
   const status = extrairStatus(orcamento);
   const temResposta =
-    orcamento.valor_resposta != null || Boolean(orcamento.descricao_resposta);
+    orcamento.valorResposta != null || Boolean(orcamento.descricaoResposta);
   const estaProcessando = processandoId === orcamento.id;
 
   return (
@@ -71,20 +71,20 @@ export default function OrcamentoSolicitadoCard({
       {temResposta && (
         <div className="orcamento-proposta-box">
           <h4>Proposta do Prestador</h4>
-          {orcamento.valor_resposta != null && (
+          {orcamento.valorResposta != null && (
             <p className="proposta-valor">
               Valor:{' '}
               <strong>
-                {Number(orcamento.valor_resposta).toLocaleString('pt-BR', {
+                {Number(orcamento.valorResposta).toLocaleString('pt-BR', {
                   style: 'currency',
                   currency: 'BRL',
                 })}
               </strong>
             </p>
           )}
-          {orcamento.descricao_resposta && (
+          {orcamento.descricaoResposta && (
             <p className="proposta-condicoes">
-              <strong>Condições / Detalhes:</strong> {orcamento.descricao_resposta}
+              <strong>Condições / Detalhes:</strong> {orcamento.descricaoResposta}
             </p>
           )}
         </div>

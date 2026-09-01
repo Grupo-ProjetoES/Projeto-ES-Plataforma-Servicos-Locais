@@ -68,7 +68,7 @@ export default function MeusServicosContratados() {
         <div className="container">
           <header className="page-header">
             <h1>Serviços Sob Minha Responsabilidade</h1>
-            <p>Visualize os atendimentos contratados que ainda não foram iniciados.</p>
+            <p>Acompanhe todos os atendimentos contratados que você está executando.</p>
           </header>
 
           {errorMessage && <div className="alert alert-danger">{errorMessage}</div>}
@@ -77,7 +77,7 @@ export default function MeusServicosContratados() {
 
           {!loading && !errorMessage && servicos.length === 0 && (
             <div className="empty-state">
-              <p>Você não possui serviços contratados não iniciados no momento.</p>
+              <p>Você não possui serviços contratados no momento.</p>
             </div>
           )}
 

@@ -20,6 +20,48 @@
   margin-bottom: 28px;
 }
 
+.servicos-contratados-header-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 20px;
+}
+
+.servicos-contratados-btn-historico {
+  padding: 10px 16px;
+  background-color: #0d6efd;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s, transform 0.1s;
+  white-space: nowrap;
+  margin-top: 24px;
+}
+
+.servicos-contratados-btn-historico:hover {
+  background-color: #0b5ed7;
+  transform: translateY(-1px);
+}
+
+.servicos-contratados-btn-historico:active {
+  transform: translateY(0);
+}
+
+@media (max-width: 768px) {
+  .servicos-contratados-header-top {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .servicos-contratados-btn-historico {
+    width: 100%;
+    margin-top: 12px;
+  }
+}
+
 .servicos-contratados-header h1 {
   margin: 4px 0 8px;
   color: #0f172a;

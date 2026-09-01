@@ -18,19 +18,14 @@ vi.mock('../components/ServicoContratadoCard', () => ({
   default: ({
     servico,
     onVerDetalhes,
-    onAvaliar,
   }: {
     servico: ServicoContratado;
     onVerDetalhes: (id: number) => void;
-    onAvaliar: (id: number) => void;
   }) => (
     <div data-testid="servico-contratado-card">
       <h3>{servico.titulo}</h3>
       <button type="button" onClick={() => onVerDetalhes(servico.servicoId)}>
         Ver Detalhes
-      </button>
-      <button type="button" onClick={() => onAvaliar(servico.servicoId)}>
-        Avaliar Prestador
       </button>
     </div>
   ),
@@ -142,7 +137,7 @@ describe('Página ServicosContratadosCliente', () => {
     });
   });
 
-  test('deve navegar corretamente para as telas de detalhes e avaliação ao clicar nos botões do card', async () => {
+  test('deve navegar para a tela de detalhes ao clicar no botão do card', async () => {
     const user = userEvent.setup();
     vi.mocked(servicoContratadoService.listar).mockResolvedValueOnce(mockServicosContratados);
 
@@ -155,9 +150,5 @@ describe('Página ServicosContratadosCliente', () => {
     const btnDetalhes = screen.getByRole('button', { name: /ver detalhes/i });
     await user.click(btnDetalhes);
     expect(mockNavigate).toHaveBeenCalledWith('/servicos/101');
-
-    const btnAvaliar = screen.getByRole('button', { name: /avaliar prestador/i });
-    await user.click(btnAvaliar);
-    expect(mockNavigate).toHaveBeenCalledWith('/servicos/101/avaliar-prestador');
   });
 });
