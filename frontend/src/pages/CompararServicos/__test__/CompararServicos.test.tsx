@@ -29,7 +29,6 @@ const mockServicosComparacao: ServicoComparacao[] = [
     cidade: 'Arcoverde',
     bairro: 'Centro',
     formaCobranca: 'POR_HORA',
-    prestadorId: 10,
     nomePrestador: 'Carlos Silva',
     notaMediaPrestador: 4.8,
     totalAvaliacoesPrestador: 5,
@@ -41,7 +40,6 @@ const mockServicosComparacao: ServicoComparacao[] = [
     cidade: 'Arcoverde',
     bairro: 'São Cristóvão',
     formaCobranca: 'VALOR_FIXO_TOTAL',
-    prestadorId: 20,
     nomePrestador: 'Ana Souza',
     notaMediaPrestador: 5.0,
     totalAvaliacoesPrestador: 1,
@@ -53,7 +51,6 @@ const mockServicosComparacao: ServicoComparacao[] = [
     cidade: 'Arcoverde',
     bairro: 'Boa Vista',
     formaCobranca: 'DIARIA',
-    prestadorId: 30,
     nomePrestador: 'Maria Santos',
     notaMediaPrestador: null,
     totalAvaliacoesPrestador: 0,
@@ -163,7 +160,7 @@ describe('Página de Comparação de Serviços (CompararServicos)', () => {
     const servicoCustom: ServicoComparacao[] = [
       {
         ...mockServicosComparacao[0],
-        formaCobranca: 'OUTRA_FORMA',
+        formaCobranca: 'OUTRA_FORMA' as unknown as ServicoComparacao['formaCobranca'],
       },
       mockServicosComparacao[1],
     ];
