@@ -97,9 +97,9 @@ export default function CompararServicos() {
             </div>
           )}
 
-          {!loading && !errorMessage && idsValidos.length < 2 && (
+          {!loading && !errorMessage && (idsValidos.length < 2 || idsValidos.length > 3) && (
             <div className="comparar-status" data-testid="comparar-invalido">
-              <p>Selecione ao menos 2 serviços na busca para realizar a comparação.</p>
+              <p>Selecione entre 2 e 3 serviços na busca para realizar a comparação.</p>
               <button
                 type="button"
                 className="btn-ir-busca"
@@ -110,7 +110,7 @@ export default function CompararServicos() {
             </div>
           )}
 
-          {!loading && !errorMessage && idsValidos.length >= 2 && servicos.length < 2 && (
+          {!loading && !errorMessage && idsValidos.length >= 2 && idsValidos.length <= 3 && servicos.length < 2 && (
             <div className="comparar-status" data-testid="comparar-insuficiente">
               <p>Restam menos de 2 serviços na comparação.</p>
               <button
