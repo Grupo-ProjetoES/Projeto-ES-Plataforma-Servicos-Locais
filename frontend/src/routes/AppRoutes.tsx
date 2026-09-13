@@ -6,6 +6,7 @@ import Home from '../pages/Home/Home';
 import PrivateRoute from '../routes/PrivateRoute';
 import BecomeProvider from '../pages/BecomeProvider/BecomeProvider';
 import Servicos from '../pages/Servicos/Servicos';
+import CompararServicos from '../pages/CompararServicos/CompararServicos';
 import ServicoDetalhe from '../pages/ServicoDetalhe/ServicoDetalhe';
 import MeusServicos from '../pages/MeusServicos/MeusServicos';
 import ServicosContratadosCliente from '../pages/ServicosContratadosCliente/ServicosContratadosCliente';
@@ -29,6 +30,7 @@ export default function AppRoutes() {
       <Route element={<PrivateRoute allowedRoles={['USER', 'ADMIN', 'PRESTADOR']} />}>
         <Route path="/become-provider" element={<BecomeProvider />} />
         <Route path="/servicos" element={<Servicos />} />
+        <Route path="/servicos/comparar" element={<CompararServicos />} />
         <Route path="/servicos/:id" element={<ServicoDetalhe />} />
         <Route
           path="/servicos/:id/solicitar-orcamento"
