@@ -224,7 +224,13 @@ public class ServicoService {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "A comparação deve ser feita entre 2 e 3 serviços.");
         }
 
-        if (ids.contains(null) || new HashSet<>(ids).size() != ids.size()) {
+        for (Long id : ids) {
+            if (id == null) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "A lista de IDs não pode conter valores nulos ou repetidos.");
+            }
+        }
+
+        if (new HashSet<>(ids).size() != ids.size()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "A lista de IDs não pode conter valores nulos ou repetidos.");
         }
 
