@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import Logo from '../../components/Logo/Logo';
 import type { ServicoComparacao } from '../../models/servico-comparacao.model';
@@ -17,20 +17,27 @@ export default function CompararServicos() {
   const [searchParams] = useSearchParams();
 
   const [servicos, setServicos] = useState<ServicoComparacao[]>([]);
-  const [loading, setLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState('');
-
   const idsParam = searchParams.get('ids');
-  const idsValidos = idsParam
-    ? idsParam
-        .split(',')
-        .map((val) => Number(val.trim()))
-        .filter((num) => !Number.isNaN(num) && num > 0)
-    : [];
+  const idsBrutos = useMemo(() => {
+    return idsParam
+      ? idsParam
+          .split(',')
+          .map((val) => Number(val.trim()))
+          .filter((num) => !Number.isNaN(num) && num > 0)
+      : [];
+  }, [idsParam]);
+
+  const temDuplicados = idsBrutos.length !== new Set(idsBrutos).size;
+  const idsValidos = idsBrutos;
+  const erroDuplicado = temDuplicados ? 'A comparação não pode conter serviços repetidos.' : '';
+  const erroFinal = erroDuplicado || errorMessage;
+
+  const precisaBuscar = !temDuplicados && idsValidos.length >= 2 && idsValidos.length <= 3;
+  const [loading, setLoading] = useState(precisaBuscar);
 
   useEffect(() => {
-    if (idsValidos.length < 2 || idsValidos.length > 3) {
-      setLoading(false);
+    if (!precisaBuscar) {
       return;
     }
 
@@ -40,12 +47,20 @@ export default function CompararServicos() {
       .comparar(idsValidos)
       .then((data) => {
         if (!ativo) return;
+        const categorias = new Set(data.map((s) => s.categoria));
+        if (categorias.size > 1) {
+          setErrorMessage('Não é possível comparar serviços de categorias diferentes.');
+          setServicos([]);
+          return;
+        }
         setServicos(data);
         setErrorMessage('');
       })
-      .catch(() => {
+      .catch((err: unknown) => {
         if (!ativo) return;
-        setErrorMessage('Não foi possível carregar a comparação de serviços.');
+        const apiMessage =
+          (err as { response?: { data?: { message?: string } } })?.response?.data?.message;
+        setErrorMessage(apiMessage || 'Não foi possível carregar a comparação de serviços.');
       })
       .finally(() => {
         if (ativo) setLoading(false);
@@ -54,7 +69,7 @@ export default function CompararServicos() {
     return () => {
       ativo = false;
     };
-  }, [idsParam]);
+  }, [idsValidos, temDuplicados, precisaBuscar]);
 
   const handleRemover = (idParaRemover: number) => {
     setServicos((prev) => prev.filter((s) => s.id !== idParaRemover));
@@ -67,6 +82,11 @@ export default function CompararServicos() {
     const plural = servico.totalAvaliacoesPrestador === 1 ? 'avaliação' : 'avaliações';
     return `★ ${servico.notaMediaPrestador.toFixed(1)} (${servico.totalAvaliacoesPrestador} ${plural})`;
   };
+
+  const cidadesDistintas = Array.from(
+    new Set(servicos.map((s) => s.cidade).filter(Boolean))
+  );
+  const temRegioesDiferentes = cidadesDistintas.length > 1;
 
   return (
     <>
@@ -91,13 +111,22 @@ export default function CompararServicos() {
 
           {loading && <div className="comparar-status">Carregando comparação...</div>}
 
-          {!loading && errorMessage && (
-            <div className="alert alert-danger" role="alert">
-              {errorMessage}
+          {!loading && erroFinal && (
+            <div className="comparar-status" data-testid="comparar-erro">
+              <div className="alert alert-danger" role="alert">
+                {erroFinal}
+              </div>
+              <button
+                type="button"
+                className="btn-ir-busca"
+                onClick={() => navigate('/servicos')}
+              >
+                Voltar para a busca de serviços
+              </button>
             </div>
           )}
 
-          {!loading && !errorMessage && (idsValidos.length < 2 || idsValidos.length > 3) && (
+          {!loading && !erroFinal && (idsValidos.length < 2 || idsValidos.length > 3) && (
             <div className="comparar-status" data-testid="comparar-invalido">
               <p>Selecione entre 2 e 3 serviços na busca para realizar a comparação.</p>
               <button
@@ -110,7 +139,7 @@ export default function CompararServicos() {
             </div>
           )}
 
-          {!loading && !errorMessage && idsValidos.length >= 2 && idsValidos.length <= 3 && servicos.length < 2 && (
+          {!loading && !erroFinal && idsValidos.length >= 2 && idsValidos.length <= 3 && servicos.length < 2 && (
             <div className="comparar-status" data-testid="comparar-insuficiente">
               <p>Restam menos de 2 serviços na comparação.</p>
               <button
@@ -124,7 +153,21 @@ export default function CompararServicos() {
           )}
 
           {!loading && !errorMessage && servicos.length >= 2 && (
-            <div className="comparar-grid" data-testid="comparar-grid">
+            <>
+              {temRegioesDiferentes && (
+                <div
+                  className="comparar-aviso-regiao"
+                  role="status"
+                  data-testid="comparar-aviso-regiao"
+                >
+                  <span className="aviso-icone">⚠️</span>
+                  <span>
+                    <strong>Atenção:</strong> Os serviços selecionados atendem em regiões diferentes ({cidadesDistintas.join(', ')}). Verifique a disponibilidade dos prestadores para o seu endereço.
+                  </span>
+                </div>
+              )}
+
+              <div className="comparar-grid" data-testid="comparar-grid">
               {servicos.map((servico) => (
                 <section
                   key={servico.id}
@@ -190,6 +233,7 @@ export default function CompararServicos() {
                 </section>
               ))}
             </div>
+            </>
           )}
         </div>
       </main>

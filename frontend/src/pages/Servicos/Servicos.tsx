@@ -11,20 +11,21 @@ export default function Servicos() {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
 
+  const [servicos, setServicos] = useState<ServicoResumo[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [errorMessage, setErrorMessage] = useState('');
+  const [servicosSelecionados, setServicosSelecionados] = useState<number[]>([]);
+  const [categoriaComparacao, setCategoriaComparacao] = useState<string | null>(null);
+  const [avisoLimite, setAvisoLimite] = useState('');
+
   const filtrosAtuais: ServicoFiltro = useMemo(
     () => ({
       categoria: searchParams.get('categoria') || undefined,
       cidade: searchParams.get('cidade') || undefined,
       bairro: searchParams.get('bairro') || undefined,
     }),
-    [searchParams],
+    [searchParams]
   );
-
-  const [servicos, setServicos] = useState<ServicoResumo[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [errorMessage, setErrorMessage] = useState('');
-  const [servicosSelecionados, setServicosSelecionados] = useState<number[]>([]);
-  const [avisoLimite, setAvisoLimite] = useState('');
 
   useEffect(() => {
     let ativo = true;
@@ -35,6 +36,15 @@ export default function Servicos() {
         if (!ativo) return;
         setServicos(resultados);
         setErrorMessage('');
+        if (
+          categoriaComparacao &&
+          filtrosAtuais.categoria &&
+          filtrosAtuais.categoria !== categoriaComparacao
+        ) {
+          setServicosSelecionados([]);
+          setCategoriaComparacao(null);
+          setAvisoLimite('');
+        }
       })
       .catch(() => {
         if (!ativo) return;
@@ -48,10 +58,15 @@ export default function Servicos() {
     return () => {
       ativo = false;
     };
-  }, [filtrosAtuais]);
+  }, [filtrosAtuais, categoriaComparacao]);
 
   const handleSearch = (filtros: ServicoFiltro) => {
     setLoading(true);
+    if (categoriaComparacao && filtros.categoria && filtros.categoria !== categoriaComparacao) {
+      setServicosSelecionados([]);
+      setCategoriaComparacao(null);
+      setAvisoLimite('');
+    }
     const params: Record<string, string> = {};
     if (filtros.categoria) params.categoria = filtros.categoria;
     if (filtros.cidade) params.cidade = filtros.cidade;
@@ -59,22 +74,34 @@ export default function Servicos() {
     setSearchParams(params);
   };
 
-  const handleToggleSelecionar = (id: number, checked: boolean) => {
+  const handleToggleSelecionar = (servico: ServicoResumo, checked: boolean) => {
     if (checked) {
+      if (categoriaComparacao && servico.categoria !== categoriaComparacao) {
+        setAvisoLimite(`Só é possível comparar serviços da mesma categoria (${categoriaComparacao}).`);
+        return;
+      }
       if (servicosSelecionados.length >= 3) {
         setAvisoLimite('Você pode selecionar no máximo 3 serviços para comparação.');
         return;
       }
       setAvisoLimite('');
-      setServicosSelecionados((prev) => [...prev, id]);
+      if (!categoriaComparacao) {
+        setCategoriaComparacao(servico.categoria);
+      }
+      setServicosSelecionados((prev) => [...prev, servico.id]);
     } else {
       setAvisoLimite('');
-      setServicosSelecionados((prev) => prev.filter((item) => item !== id));
+      const novosSelecionados = servicosSelecionados.filter((item) => item !== servico.id);
+      setServicosSelecionados(novosSelecionados);
+      if (novosSelecionados.length === 0) {
+        setCategoriaComparacao(null);
+      }
     }
   };
 
   const handleLimparSelecao = () => {
     setServicosSelecionados([]);
+    setCategoriaComparacao(null);
     setAvisoLimite('');
   };
 
@@ -116,42 +143,63 @@ export default function Servicos() {
           <div className="servicos-status">Nenhum resultado encontrado.</div>
         ) : (
           <div className="servicos-grid">
-            {servicos.map((servico) => (
-              <div
-                key={servico.id}
-                role="button"
-                tabIndex={0}
-                className={`servico-card ${servicosSelecionados.includes(servico.id) ? 'servico-card-selecionado' : ''}`}
-                onClick={() => navigate(`/servicos/${servico.id}`)}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter' || e.key === ' ') {
-                    e.preventDefault();
-                    navigate(`/servicos/${servico.id}`);
-                  }
-                }}
-              >
-                <div className="servico-card-header">
-                  <span className="servico-categoria">{servico.categoria}</span>
-                  <label
-                    className="servico-comparar-checkbox"
-                    onClick={(e) => e.stopPropagation()}
-                  >
-                    <input
-                      type="checkbox"
-                      checked={servicosSelecionados.includes(servico.id)}
-                      onChange={(e) => handleToggleSelecionar(servico.id, e.target.checked)}
-                      aria-label={`Comparar serviço ${servico.titulo}`}
-                    />
-                    <span>Comparar</span>
-                  </label>
+            {servicos.map((servico) => {
+              const isSelecionado = servicosSelecionados.includes(servico.id);
+              const isOutraCategoria = Boolean(
+                categoriaComparacao && servico.categoria !== categoriaComparacao
+              );
+              const atingiuLimite = servicosSelecionados.length >= 3 && !isSelecionado;
+              const isDisabled = isOutraCategoria || atingiuLimite;
+              let disabledTitle = '';
+              if (isOutraCategoria) {
+                disabledTitle = `Só é possível comparar serviços da mesma categoria (${categoriaComparacao}).`;
+              } else if (atingiuLimite) {
+                disabledTitle = 'Você pode selecionar no máximo 3 serviços para comparação.';
+              }
+
+              return (
+                <div
+                  key={servico.id}
+                  role="button"
+                  tabIndex={0}
+                  className={`servico-card ${
+                    isSelecionado ? 'servico-card-selecionado' : ''
+                  } ${isDisabled ? 'servico-card-desabilitado' : ''}`}
+                  onClick={() => navigate(`/servicos/${servico.id}`)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault();
+                      navigate(`/servicos/${servico.id}`);
+                    }
+                  }}
+                >
+                  <div className="servico-card-header">
+                    <span className="servico-categoria">{servico.categoria}</span>
+                    <label
+                      className={`servico-comparar-checkbox ${
+                        isDisabled ? 'servico-comparar-checkbox-disabled' : ''
+                      }`}
+                      onClick={(e) => e.stopPropagation()}
+                      title={disabledTitle || undefined}
+                    >
+                      <input
+                        type="checkbox"
+                        checked={isSelecionado}
+                        aria-disabled={isDisabled}
+                        onChange={(e) => handleToggleSelecionar(servico, e.target.checked)}
+                        aria-label={`Comparar serviço ${servico.titulo}`}
+                      />
+                      <span>Comparar</span>
+                    </label>
+                  </div>
+                  <h3>{servico.titulo}</h3>
+                  <p className="servico-local">
+                    {servico.bairro}, {servico.cidade}
+                  </p>
+                  <p className="servico-prestador">Prestador: {servico.nomePrestador}</p>
                 </div>
-                <h3>{servico.titulo}</h3>
-                <p className="servico-local">
-                  {servico.bairro}, {servico.cidade}
-                </p>
-                <p className="servico-prestador">Prestador: {servico.nomePrestador}</p>
-              </div>
-            ))}
+              );
+            })}
           </div>
         )}
 

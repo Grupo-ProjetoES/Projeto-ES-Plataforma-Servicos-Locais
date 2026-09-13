@@ -211,3 +211,22 @@
     grid-template-columns: 1fr;
   }
 }
+
+.comparar-aviso-regiao {
+  margin-bottom: 24px;
+  padding: 14px 18px;
+  border-radius: 12px;
+  background-color: #fffbeb;
+  border: 1px solid #fef3c7;
+  color: #92400e;
+  font-size: 0.95rem;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  box-shadow: 0 2px 8px rgba(245, 158, 11, 0.08);
+}
+
+.aviso-icone {
+  font-size: 1.25rem;
+  line-height: 1;
+}

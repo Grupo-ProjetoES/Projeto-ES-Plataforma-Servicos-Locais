@@ -46,27 +46,35 @@ const mockServicos: ServicoResumo[] = [
   },
   {
     id: 2,
+    titulo: 'Pintura de Fachada Externa',
+    categoria: 'PINTURA',
+    cidade: 'Arcoverde',
+    bairro: 'São Cristóvão',
+    nomePrestador: 'Bruno Pinturas',
+  },
+  {
+    id: 3,
+    titulo: 'Pintura Fina e Acabamento',
+    categoria: 'PINTURA',
+    cidade: 'Arcoverde',
+    bairro: 'Centro',
+    nomePrestador: 'Leandro Tintas',
+  },
+  {
+    id: 4,
+    titulo: 'Pintura Simples e Econômica',
+    categoria: 'PINTURA',
+    cidade: 'Arcoverde',
+    bairro: 'Boa Vista',
+    nomePrestador: 'Rafael Pintor',
+  },
+  {
+    id: 5,
     titulo: 'Instalação Elétrica',
     categoria: 'ELETRICA',
     cidade: 'Arcoverde',
     bairro: 'São Cristóvão',
     nomePrestador: 'Ana Souza',
-  },
-  {
-    id: 3,
-    titulo: 'Limpeza Pós-Obra',
-    categoria: 'LIMPEZA',
-    cidade: 'Arcoverde',
-    bairro: 'Centro',
-    nomePrestador: 'Maria Santos',
-  },
-  {
-    id: 4,
-    titulo: 'Manutenção Hidráulica',
-    categoria: 'HIDRAULICA',
-    cidade: 'Arcoverde',
-    bairro: 'Boa Vista',
-    nomePrestador: 'João Pereira',
   },
 ];
 
@@ -195,7 +203,7 @@ describe('Página de Serviços (Servicos)', () => {
     });
 
     const checkbox1 = screen.getByLabelText(/comparar serviço pintura de parede residencial/i);
-    const checkbox2 = screen.getByLabelText(/comparar serviço instalação elétrica/i);
+    const checkbox2 = screen.getByLabelText(/comparar serviço pintura de fachada externa/i);
 
     expect(screen.queryByTestId('comparacao-contador')).not.toBeInTheDocument();
 
@@ -221,8 +229,8 @@ describe('Página de Serviços (Servicos)', () => {
     });
 
     const checkbox1 = screen.getByLabelText(/comparar serviço pintura de parede residencial/i);
-    const checkbox2 = screen.getByLabelText(/comparar serviço instalação elétrica/i);
-    const checkbox3 = screen.getByLabelText(/comparar serviço limpeza pós-obra/i);
+    const checkbox2 = screen.getByLabelText(/comparar serviço pintura de fachada externa/i);
+    const checkbox3 = screen.getByLabelText(/comparar serviço pintura fina e acabamento/i);
 
     await user.click(checkbox1);
     const btnComparar = screen.getByRole('button', { name: /comparar serviços/i });
@@ -246,9 +254,9 @@ describe('Página de Serviços (Servicos)', () => {
     });
 
     const checkbox1 = screen.getByLabelText(/comparar serviço pintura de parede residencial/i);
-    const checkbox2 = screen.getByLabelText(/comparar serviço instalação elétrica/i);
-    const checkbox3 = screen.getByLabelText(/comparar serviço limpeza pós-obra/i);
-    const checkbox4 = screen.getByLabelText(/comparar serviço manutenção hidráulica/i);
+    const checkbox2 = screen.getByLabelText(/comparar serviço pintura de fachada externa/i);
+    const checkbox3 = screen.getByLabelText(/comparar serviço pintura fina e acabamento/i);
+    const checkbox4 = screen.getByLabelText(/comparar serviço pintura simples e econômica/i);
 
     await user.click(checkbox1);
     await user.click(checkbox2);
@@ -267,6 +275,31 @@ describe('Página de Serviços (Servicos)', () => {
     expect(screen.getByTestId('comparacao-contador')).toHaveTextContent('3/3 selecionados');
   });
 
+  test('deve bloquear a seleção de serviço de categoria diferente e exibir aviso', async () => {
+    const user = userEvent.setup();
+    vi.mocked(servicoService.buscar).mockResolvedValueOnce(mockServicos);
+
+    renderComponent();
+
+    await waitFor(() => {
+      expect(screen.getByText('Pintura de Parede Residencial')).toBeInTheDocument();
+    });
+
+    const checkboxPintura = screen.getByLabelText(/comparar serviço pintura de parede residencial/i);
+    const checkboxEletrica = screen.getByLabelText(/comparar serviço instalação elétrica/i);
+
+    await user.click(checkboxPintura);
+    expect(checkboxPintura).toBeChecked();
+    expect(screen.getByTestId('comparacao-contador')).toHaveTextContent('1/3 selecionados');
+
+    await user.click(checkboxEletrica);
+
+    expect(checkboxEletrica).not.toBeChecked();
+    expect(screen.getByTestId('comparacao-contador')).toHaveTextContent('1/3 selecionados');
+    const avisos = screen.getAllByText('Só é possível comparar serviços da mesma categoria (PINTURA).');
+    expect(avisos.length).toBeGreaterThanOrEqual(1);
+  });
+
   test('deve navegar para /servicos/comparar ao clicar em Comparar serviços', async () => {
     const user = userEvent.setup();
     vi.mocked(servicoService.buscar).mockResolvedValueOnce(mockServicos);
@@ -278,7 +311,7 @@ describe('Página de Serviços (Servicos)', () => {
     });
 
     const checkbox1 = screen.getByLabelText(/comparar serviço pintura de parede residencial/i);
-    const checkbox2 = screen.getByLabelText(/comparar serviço instalação elétrica/i);
+    const checkbox2 = screen.getByLabelText(/comparar serviço pintura de fachada externa/i);
 
     await user.click(checkbox1);
     await user.click(checkbox2);
@@ -300,7 +333,7 @@ describe('Página de Serviços (Servicos)', () => {
     });
 
     const checkbox1 = screen.getByLabelText(/comparar serviço pintura de parede residencial/i);
-    const checkbox2 = screen.getByLabelText(/comparar serviço instalação elétrica/i);
+    const checkbox2 = screen.getByLabelText(/comparar serviço pintura de fachada externa/i);
 
     await user.click(checkbox1);
     await user.click(checkbox2);
@@ -324,7 +357,7 @@ describe('Página de Serviços (Servicos)', () => {
     });
 
     const checkbox1 = screen.getByLabelText(/comparar serviço pintura de parede residencial/i);
-    const checkbox2 = screen.getByLabelText(/comparar serviço instalação elétrica/i);
+    const checkbox2 = screen.getByLabelText(/comparar serviço pintura de fachada externa/i);
 
     await user.click(checkbox1);
     await user.click(checkbox2);
@@ -377,5 +410,29 @@ describe('Página de Serviços (Servicos)', () => {
     mockNavigate.mockClear();
     await user.keyboard('{ArrowDown}');
     expect(mockNavigate).not.toHaveBeenCalled();
+  });
+
+  test('deve aplicar aria-disabled e title explicativo no checkbox de serviço com categoria diferente', async () => {
+    const user = userEvent.setup();
+    vi.mocked(servicoService.buscar).mockResolvedValueOnce(mockServicos);
+
+    renderComponent();
+
+    await waitFor(() => {
+      expect(screen.getByText('Pintura de Parede Residencial')).toBeInTheDocument();
+    });
+
+    const checkboxPintura = screen.getByLabelText(/comparar serviço pintura de parede residencial/i);
+    const checkboxEletrica = screen.getByLabelText(/comparar serviço instalação elétrica/i);
+
+    expect(checkboxEletrica).toHaveAttribute('aria-disabled', 'false');
+
+    await user.click(checkboxPintura);
+
+    expect(checkboxEletrica).toHaveAttribute('aria-disabled', 'true');
+    expect(checkboxEletrica.closest('label')).toHaveAttribute(
+      'title',
+      'Só é possível comparar serviços da mesma categoria (PINTURA).'
+    );
   });
 });

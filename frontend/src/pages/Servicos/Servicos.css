@@ -138,6 +138,19 @@
   cursor: pointer;
 }
 
+.servico-comparar-checkbox-disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.servico-comparar-checkbox-disabled input[type="checkbox"] {
+  cursor: not-allowed;
+}
+
+.servico-card-desabilitado {
+  opacity: 0.85;
+}
+
 .servico-card-selecionado {
   border-color: #0f766e;
   background-color: #f0fdfa;

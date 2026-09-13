@@ -36,7 +36,7 @@ const mockServicosComparacao: ServicoComparacao[] = [
   {
     id: 2,
     titulo: 'Instalação Elétrica',
-    categoria: 'ELETRICA',
+    categoria: 'PINTURA',
     cidade: 'Arcoverde',
     bairro: 'São Cristóvão',
     formaCobranca: 'VALOR_FIXO_TOTAL',
@@ -47,7 +47,7 @@ const mockServicosComparacao: ServicoComparacao[] = [
   {
     id: 3,
     titulo: 'Limpeza de Fachada',
-    categoria: 'LIMPEZA',
+    categoria: 'PINTURA',
     cidade: 'Arcoverde',
     bairro: 'Boa Vista',
     formaCobranca: 'DIARIA',
@@ -305,5 +305,68 @@ describe('Página de Comparação de Serviços (CompararServicos)', () => {
     unmount();
 
     rejectPromise(new Error('Erro'));
+  });
+
+  test('deve exibir mensagem de erro quando os serviços retornados forem de categorias diferentes', async () => {
+    const servicosCategoriasDiferentes: ServicoComparacao[] = [
+      { ...mockServicosComparacao[0], categoria: 'PINTURA' },
+      { ...mockServicosComparacao[1], categoria: 'ELETRICA' },
+    ];
+
+    vi.mocked(servicoService.comparar).mockResolvedValueOnce(servicosCategoriasDiferentes);
+
+    renderComponent('/servicos/comparar?ids=1,2');
+
+    await waitFor(() => {
+      expect(
+        screen.getByText('Não é possível comparar serviços de categorias diferentes.')
+      ).toBeInTheDocument();
+    });
+    expect(screen.queryByTestId('comparar-grid')).not.toBeInTheDocument();
+  });
+
+  test('deve exibir mensagem de erro quando a URL contiver IDs duplicados', async () => {
+    renderComponent('/servicos/comparar?ids=1,1');
+
+    expect(
+      screen.getByText('A comparação não pode conter serviços repetidos.')
+    ).toBeInTheDocument();
+    expect(servicoService.comparar).not.toHaveBeenCalled();
+  });
+
+  test('deve exibir aviso de regiões diferentes quando os serviços atenderem em cidades distintas', async () => {
+    const servicosCidadesDiferentes: ServicoComparacao[] = [
+      { ...mockServicosComparacao[0], cidade: 'Arcoverde' },
+      { ...mockServicosComparacao[1], cidade: 'Garanhuns' },
+    ];
+
+    vi.mocked(servicoService.comparar).mockResolvedValueOnce(servicosCidadesDiferentes);
+
+    renderComponent('/servicos/comparar?ids=1,2');
+
+    await waitFor(() => {
+      expect(screen.getByTestId('comparar-aviso-regiao')).toBeInTheDocument();
+      expect(
+        screen.getByText(/atendem em regiões diferentes \(Arcoverde, Garanhuns\)/i)
+      ).toBeInTheDocument();
+    });
+  });
+
+  test('deve exibir a mensagem de erro retornada pela API quando houver mensagem no response', async () => {
+    vi.mocked(servicoService.comparar).mockRejectedValueOnce({
+      response: {
+        data: {
+          message: 'Serviço inexistente ou não disponível.',
+        },
+      },
+    });
+
+    renderComponent('/servicos/comparar?ids=1,2');
+
+    await waitFor(() => {
+      expect(
+        screen.getByText('Serviço inexistente ou não disponível.')
+      ).toBeInTheDocument();
+    });
   });
 });
