@@ -23,6 +23,8 @@ export default function Servicos() {
   const [servicos, setServicos] = useState<ServicoResumo[]>([]);
   const [loading, setLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState('');
+  const [servicosSelecionados, setServicosSelecionados] = useState<number[]>([]);
+  const [avisoLimite, setAvisoLimite] = useState('');
 
   useEffect(() => {
     let ativo = true;
@@ -57,6 +59,31 @@ export default function Servicos() {
     setSearchParams(params);
   };
 
+  const handleToggleSelecionar = (id: number, checked: boolean) => {
+    if (checked) {
+      if (servicosSelecionados.length >= 3) {
+        setAvisoLimite('Você pode selecionar no máximo 3 serviços para comparação.');
+        return;
+      }
+      setAvisoLimite('');
+      setServicosSelecionados((prev) => [...prev, id]);
+    } else {
+      setAvisoLimite('');
+      setServicosSelecionados((prev) => prev.filter((item) => item !== id));
+    }
+  };
+
+  const handleLimparSelecao = () => {
+    setServicosSelecionados([]);
+    setAvisoLimite('');
+  };
+
+  const handleComparar = () => {
+    if (servicosSelecionados.length >= 2) {
+      navigate(`/servicos/comparar?ids=${servicosSelecionados.join(',')}`);
+    }
+  };
+
   return (
     <>
       <header className="servicos-topbar">
@@ -77,6 +104,11 @@ export default function Servicos() {
         />
 
         {errorMessage && <div className="alert alert-danger">{errorMessage}</div>}
+        {avisoLimite && (
+          <div className="alert alert-warning" role="alert">
+            {avisoLimite}
+          </div>
+        )}
 
         {loading ? (
           <div className="servicos-status">Carregando serviços...</div>
@@ -85,21 +117,76 @@ export default function Servicos() {
         ) : (
           <div className="servicos-grid">
             {servicos.map((servico) => (
-              <button
+              <div
                 key={servico.id}
-                type="button"
-                className="servico-card"
+                role="button"
+                tabIndex={0}
+                className={`servico-card ${servicosSelecionados.includes(servico.id) ? 'servico-card-selecionado' : ''}`}
                 onClick={() => navigate(`/servicos/${servico.id}`)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    navigate(`/servicos/${servico.id}`);
+                  }
+                }}
               >
-                <span className="servico-categoria">{servico.categoria}</span>
+                <div className="servico-card-header">
+                  <span className="servico-categoria">{servico.categoria}</span>
+                  <label
+                    className="servico-comparar-checkbox"
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    <input
+                      type="checkbox"
+                      checked={servicosSelecionados.includes(servico.id)}
+                      onChange={(e) => handleToggleSelecionar(servico.id, e.target.checked)}
+                      aria-label={`Comparar serviço ${servico.titulo}`}
+                    />
+                    <span>Comparar</span>
+                  </label>
+                </div>
                 <h3>{servico.titulo}</h3>
                 <p className="servico-local">
                   {servico.bairro}, {servico.cidade}
                 </p>
                 <p className="servico-prestador">Prestador: {servico.nomePrestador}</p>
-              </button>
+              </div>
             ))}
           </div>
+        )}
+
+        {servicosSelecionados.length > 0 && (
+          <aside className="comparacao-barra-flutuante" aria-label="Barra de comparação de serviços">
+            <div className="comparacao-barra-conteudo">
+              <div className="comparacao-barra-info">
+                <span className="comparacao-contador" data-testid="comparacao-contador">
+                  {servicosSelecionados.length}/3 selecionados
+                </span>
+                {avisoLimite && (
+                  <span className="comparacao-aviso-inline" role="alert">
+                    {avisoLimite}
+                  </span>
+                )}
+              </div>
+              <div className="comparacao-barra-acoes">
+                <button
+                  type="button"
+                  className="btn-limpar-selecao"
+                  onClick={handleLimparSelecao}
+                >
+                  Limpar seleção
+                </button>
+                <button
+                  type="button"
+                  className="btn-comparar-servicos"
+                  onClick={handleComparar}
+                  disabled={servicosSelecionados.length < 2}
+                >
+                  Comparar serviços
+                </button>
+              </div>
+            </div>
+          </aside>
         )}
       </main>
     </>
