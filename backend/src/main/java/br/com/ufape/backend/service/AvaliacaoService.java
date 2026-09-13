@@ -1,5 +1,6 @@
 package br.com.ufape.backend.service;
 
+import br.com.ufape.backend.dto.AvaliacaoPrestadorEstatisticaDto;
 import br.com.ufape.backend.dto.AvaliacaoRequestDto;
 import br.com.ufape.backend.dto.AvaliacaoResponseDto;
 import br.com.ufape.backend.enums.StatusServico;
@@ -54,5 +55,20 @@ public class AvaliacaoService {
                 && servico.getCliente().getId() != null
                 && servico.getCliente().getId().equals(usuarioAutenticado.getId())
                 && servico.getStatus() == StatusServico.REALIZADO;
+    }
+
+    @Transactional(readOnly = true)
+    public AvaliacaoPrestadorEstatisticaDto obterEstatisticasPrestador(Long prestadorId) {
+        if (prestadorId == null) {
+            return new AvaliacaoPrestadorEstatisticaDto(null, 0L);
+        }
+
+        Double media = avaliacaoRepository.calcularMediaNotasPorPrestadorId(prestadorId);
+        Long total = avaliacaoRepository.contarPorPrestadorId(prestadorId);
+
+        return new AvaliacaoPrestadorEstatisticaDto(
+                media,
+                total != null ? total : 0L
+        );
     }
 }

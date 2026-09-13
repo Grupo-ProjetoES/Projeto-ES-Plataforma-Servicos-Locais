@@ -1,5 +1,6 @@
 package br.com.ufape.backend.service;
 
+import br.com.ufape.backend.dto.AvaliacaoPrestadorEstatisticaDto;
 import br.com.ufape.backend.dto.AvaliacaoRequestDto;
 import br.com.ufape.backend.dto.AvaliacaoResponseDto;
 import br.com.ufape.backend.enums.StatusServico;
@@ -24,6 +25,7 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.never;
@@ -129,6 +131,41 @@ class AvaliacaoServiceTest {
                 () -> avaliacaoService.criar(100L, usuario, dto));
 
         verify(avaliacaoRepository, never()).save(any(Avaliacao.class));
+    }
+
+    @Test
+    void deveRetornarEstatisticasQuandoPrestadorPossuiAvaliacoes() {
+        Long prestadorId = 10L;
+        when(avaliacaoRepository.calcularMediaNotasPorPrestadorId(prestadorId)).thenReturn(4.5);
+        when(avaliacaoRepository.contarPorPrestadorId(prestadorId)).thenReturn(8L);
+
+        AvaliacaoPrestadorEstatisticaDto estatisticas = avaliacaoService.obterEstatisticasPrestador(prestadorId);
+
+        assertNotNull(estatisticas);
+        assertEquals(4.5, estatisticas.notaMedia());
+        assertEquals(8L, estatisticas.totalAvaliacoes());
+    }
+
+    @Test
+    void deveRetornarEstatisticasComNotaNulaETotalZeroQuandoPrestadorNaoPossuiAvaliacoes() {
+        Long prestadorId = 20L;
+        when(avaliacaoRepository.calcularMediaNotasPorPrestadorId(prestadorId)).thenReturn(null);
+        when(avaliacaoRepository.contarPorPrestadorId(prestadorId)).thenReturn(0L);
+
+        AvaliacaoPrestadorEstatisticaDto estatisticas = avaliacaoService.obterEstatisticasPrestador(prestadorId);
+
+        assertNotNull(estatisticas);
+        assertNull(estatisticas.notaMedia());
+        assertEquals(0L, estatisticas.totalAvaliacoes());
+    }
+
+    @Test
+    void deveRetornarEstatisticasComNotaNulaETotalZeroQuandoPrestadorIdForNulo() {
+        AvaliacaoPrestadorEstatisticaDto estatisticas = avaliacaoService.obterEstatisticasPrestador(null);
+
+        assertNotNull(estatisticas);
+        assertNull(estatisticas.notaMedia());
+        assertEquals(0L, estatisticas.totalAvaliacoes());
     }
 
     private User usuario(Long id) {
