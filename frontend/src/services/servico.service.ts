@@ -1,4 +1,5 @@
 import api from './api';
+import type { ServicoComparacao } from '../models/servico-comparacao.model';
 import type { ServicoDetalhe } from '../models/servico-detalhe.model';
 import type { ServicoFiltro } from '../models/servico-filtro.model';
 import type { ServicoResumo } from '../models/servico-resumo.model';
@@ -21,6 +22,13 @@ class ServicoService {
 
   async buscarPorId(id: string | number): Promise<ServicoDetalhe> {
     const response = await api.get<ServicoDetalhe>(`/servicos/${id}`);
+    return response.data;
+  }
+
+  async comparar(ids: number[]): Promise<ServicoComparacao[]> {
+    const response = await api.get<ServicoComparacao[]>('/servicos/comparar', {
+      params: { ids: ids.join(',') },
+    });
     return response.data;
   }
 

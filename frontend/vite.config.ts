@@ -16,6 +16,9 @@ export default defineConfig({
         'src/pages/MeusServicosContratados/components/ServicoContratadoPrestadorCard.tsx',
         'src/pages/AtualizarStatusServico/AtualizarStatusServico.tsx',
         'src/services/servico-contratado.service.ts',
+        'src/pages/Servicos/Servicos.tsx',
+        'src/pages/CompararServicos/CompararServicos.tsx',
+        'src/services/servico.service.ts',
       ],
       thresholds: {
         statements: 70,

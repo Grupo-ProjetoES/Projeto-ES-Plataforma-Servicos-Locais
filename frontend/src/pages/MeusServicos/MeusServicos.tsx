@@ -57,7 +57,7 @@ export default function MeusServicos() {
     navigate(`/meus-servicos/orcamentos/${servicoId}`);
   };
 
-  const handleVerContratados = (_servicoId: number) => {
+  const handleVerContratados = () => {
     navigate('/meus-servicos/contratados');
   };
 
@@ -119,7 +119,7 @@ export default function MeusServicos() {
                   <button
                     type="button"
                     className="btn-contratados"
-                    onClick={() => handleVerContratados(servico.id)}
+                    onClick={handleVerContratados}
                   >
                     Serviços Contratados
                   </button>
