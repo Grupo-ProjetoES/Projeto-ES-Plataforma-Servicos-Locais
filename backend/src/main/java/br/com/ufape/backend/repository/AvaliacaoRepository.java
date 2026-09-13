@@ -16,4 +16,10 @@ public interface AvaliacaoRepository extends JpaRepository<Avaliacao, Long> {
         @Param("usuarioId") Long usuarioId,
         @Param("servicoIds") List<Long> servicoIds
     );
+
+    @Query("SELECT AVG(a.nota) FROM Avaliacao a WHERE a.prestador.id = :prestadorId")
+    Double calcularMediaNotasPorPrestadorId(@Param("prestadorId") Long prestadorId);
+
+    @Query("SELECT COUNT(a) FROM Avaliacao a WHERE a.prestador.id = :prestadorId")
+    Long contarPorPrestadorId(@Param("prestadorId") Long prestadorId);
 }

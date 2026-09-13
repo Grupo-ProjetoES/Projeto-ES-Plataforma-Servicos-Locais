@@ -1,11 +1,13 @@
 package br.com.ufape.backend.service;
 
+import br.com.ufape.backend.dto.ServicoComparacaoResponseDto;
 import br.com.ufape.backend.dto.ServicoContratadoPrestadorResponseDto;
 import br.com.ufape.backend.dto.ServicoContratadoResponseDto;
 import br.com.ufape.backend.dto.ServicoDetalheResponseDto;
 import br.com.ufape.backend.dto.ServicoRequestDto;
 import br.com.ufape.backend.dto.ServicoResumoResponseDto;
 import br.com.ufape.backend.enums.StatusServico;
+import br.com.ufape.backend.exception.ServicoNotFoundException;
 import br.com.ufape.backend.model.*;
 import br.com.ufape.backend.repository.OrcamentoRepository;
 import br.com.ufape.backend.repository.ProviderProfileRepository;
@@ -30,6 +32,7 @@ import java.time.LocalDateTime;
 
 import br.com.ufape.backend.enums.FormaCobranca;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -639,12 +642,162 @@ class ServicoServiceTest {
         assertTrue(resultado.isEmpty());
     }
 
+    @Test
+    void deveCompararDoisServicosComSucesso() {
+        Servico s1 = criarServicoComPrestador(1L, 10L, StatusServico.DISPONIVEL);
+        Servico s2 = criarServicoComPrestador(2L, 20L, StatusServico.DISPONIVEL);
+        s2.setTitulo("Pintura Residencial");
+
+        when(servicoRepository.findById(1L)).thenReturn(Optional.of(s1));
+        when(servicoRepository.findById(2L)).thenReturn(Optional.of(s2));
+
+        when(avaliacaoRepository.calcularMediaNotasPorPrestadorId(10L)).thenReturn(4.8);
+        when(avaliacaoRepository.contarPorPrestadorId(10L)).thenReturn(15L);
+
+        when(avaliacaoRepository.calcularMediaNotasPorPrestadorId(20L)).thenReturn(4.2);
+        when(avaliacaoRepository.contarPorPrestadorId(20L)).thenReturn(5L);
+
+        List<ServicoComparacaoResponseDto> resultado = servicoService.compararServicos(List.of(1L, 2L));
+
+        assertNotNull(resultado);
+        assertEquals(2, resultado.size());
+
+        ServicoComparacaoResponseDto dto1 = resultado.get(0);
+        assertEquals(1L, dto1.id());
+        assertEquals("Instalação Elétrica", dto1.titulo());
+        assertEquals("Eletricista", dto1.categoria());
+        assertEquals("Boa Viagem", dto1.bairro());
+        assertEquals("Recife", dto1.cidade());
+        assertEquals(FormaCobranca.POR_HORA, dto1.formaCobranca());
+        assertEquals("Carlos Prestador", dto1.nomePrestador());
+        assertEquals(4.8, dto1.notaMediaPrestador());
+        assertEquals(15L, dto1.totalAvaliacoesPrestador());
+
+        ServicoComparacaoResponseDto dto2 = resultado.get(1);
+        assertEquals(2L, dto2.id());
+        assertEquals("Pintura Residencial", dto2.titulo());
+        assertEquals(4.2, dto2.notaMediaPrestador());
+        assertEquals(5L, dto2.totalAvaliacoesPrestador());
+    }
+
+    @Test
+    void deveCompararTresServicosComSucesso() {
+        Servico s1 = criarServicoComPrestador(1L, 10L, StatusServico.DISPONIVEL);
+        Servico s2 = criarServicoComPrestador(2L, 20L, StatusServico.DISPONIVEL);
+        Servico s3 = criarServicoComPrestador(3L, 30L, StatusServico.DISPONIVEL);
+
+        when(servicoRepository.findById(1L)).thenReturn(Optional.of(s1));
+        when(servicoRepository.findById(2L)).thenReturn(Optional.of(s2));
+        when(servicoRepository.findById(3L)).thenReturn(Optional.of(s3));
+
+        when(avaliacaoRepository.calcularMediaNotasPorPrestadorId(any())).thenReturn(5.0);
+        when(avaliacaoRepository.contarPorPrestadorId(any())).thenReturn(2L);
+
+        List<ServicoComparacaoResponseDto> resultado = servicoService.compararServicos(List.of(1L, 2L, 3L));
+
+        assertNotNull(resultado);
+        assertEquals(3, resultado.size());
+    }
+
+    @Test
+    void deveRetornarNotaMediaNulaETotalZeroQuandoPrestadorNaoPossuiAvaliacoes() {
+        Servico s1 = criarServicoComPrestador(1L, 10L, StatusServico.DISPONIVEL);
+        Servico s2 = criarServicoComPrestador(2L, 20L, StatusServico.DISPONIVEL);
+
+        when(servicoRepository.findById(1L)).thenReturn(Optional.of(s1));
+        when(servicoRepository.findById(2L)).thenReturn(Optional.of(s2));
+
+        when(avaliacaoRepository.calcularMediaNotasPorPrestadorId(10L)).thenReturn(4.5);
+        when(avaliacaoRepository.contarPorPrestadorId(10L)).thenReturn(10L);
+
+        when(avaliacaoRepository.calcularMediaNotasPorPrestadorId(20L)).thenReturn(null);
+        when(avaliacaoRepository.contarPorPrestadorId(20L)).thenReturn(0L);
+
+        List<ServicoComparacaoResponseDto> resultado = servicoService.compararServicos(List.of(1L, 2L));
+
+        assertNotNull(resultado);
+        assertEquals(2, resultado.size());
+        assertNull(resultado.get(1).notaMediaPrestador());
+        assertEquals(0L, resultado.get(1).totalAvaliacoesPrestador());
+    }
+
+    @Test
+    void deveRetornarMediaNulaQuandoPrestadorDoServicoForNulo() {
+        Servico s1 = criarServicoComPrestador(1L, 10L, StatusServico.DISPONIVEL);
+        Servico s2 = criarServicoComPrestador(2L, 20L, StatusServico.DISPONIVEL);
+
+        User prestadorUser = new User();
+        prestadorUser.setName("Sem Prestador");
+        ProviderProfile perfilSemId = new ProviderProfile();
+        perfilSemId.setUser(prestadorUser);
+        s2.setPrestador(perfilSemId);
+
+        when(servicoRepository.findById(1L)).thenReturn(Optional.of(s1));
+        when(servicoRepository.findById(2L)).thenReturn(Optional.of(s2));
+
+        List<ServicoComparacaoResponseDto> resultado = servicoService.compararServicos(List.of(1L, 2L));
+
+        assertNotNull(resultado);
+        assertNull(resultado.get(1).notaMediaPrestador());
+        assertEquals(0L, resultado.get(1).totalAvaliacoesPrestador());
+    }
+
+    @Test
+    void deveLancarBadExceptionQuandoIdsForNulo() {
+        ResponseStatusException ex = assertThrows(ResponseStatusException.class,
+                () -> servicoService.compararServicos(null));
+
+        assertEquals(HttpStatus.BAD_REQUEST, ex.getStatusCode());
+        assertEquals("A comparação deve ser feita entre 2 e 3 serviços.", ex.getReason());
+    }
+
+    @Test
+    void deveLancarBadExceptionQuandoIdsTiverMenosDeDoisElementos() {
+        ResponseStatusException ex = assertThrows(ResponseStatusException.class,
+                () -> servicoService.compararServicos(List.of(1L)));
+
+        assertEquals(HttpStatus.BAD_REQUEST, ex.getStatusCode());
+        assertEquals("A comparação deve ser feita entre 2 e 3 serviços.", ex.getReason());
+    }
+
+    @Test
+    void deveLancarBadExceptionQuandoIdsTiverMaisDeTresElementos() {
+        ResponseStatusException ex = assertThrows(ResponseStatusException.class,
+                () -> servicoService.compararServicos(List.of(1L, 2L, 3L, 4L)));
+
+        assertEquals(HttpStatus.BAD_REQUEST, ex.getStatusCode());
+        assertEquals("A comparação deve ser feita entre 2 e 3 serviços.", ex.getReason());
+    }
+
+    @Test
+    void deveLancarBadExceptionQuandoIdsContiverValoresNulosOuRepetidos() {
+        ResponseStatusException exRepetidos = assertThrows(ResponseStatusException.class,
+                () -> servicoService.compararServicos(List.of(1L, 1L)));
+        assertEquals(HttpStatus.BAD_REQUEST, exRepetidos.getStatusCode());
+
+        ResponseStatusException exNulos = assertThrows(ResponseStatusException.class,
+                () -> servicoService.compararServicos(Arrays.asList(1L, null)));
+        assertEquals(HttpStatus.BAD_REQUEST, exNulos.getStatusCode());
+    }
+
+    @Test
+    void deveLancarServicoNotFoundExceptionQuandoUmDosIdsNaoExistir() {
+        Servico s1 = criarServicoComPrestador(1L, 10L, StatusServico.DISPONIVEL);
+
+        when(servicoRepository.findById(1L)).thenReturn(Optional.of(s1));
+        when(servicoRepository.findById(999L)).thenReturn(Optional.empty());
+
+        assertThrows(ServicoNotFoundException.class,
+                () -> servicoService.compararServicos(List.of(1L, 999L)));
+    }
+
     private Servico criarServicoComPrestador(Long idServico, Long idPrestador, StatusServico status) {
         User prestadorUser = new User();
         prestadorUser.setId(idPrestador);
         prestadorUser.setName("Carlos Prestador");
 
         ProviderProfile perfil = new ProviderProfile();
+        ReflectionTestUtils.setField(perfil, "id", idPrestador);
         perfil.setUser(prestadorUser);
 
         ServiceCategory categoria = new ServiceCategory("Eletricista");
@@ -655,6 +808,7 @@ class ServicoServiceTest {
         servico.setCategoria(categoria);
         servico.setLocalizacao("Boa Viagem");
         servico.setAreaAtendimento("Recife");
+        servico.setFormaCobranca(FormaCobranca.POR_HORA);
         servico.setPrestador(perfil);
         servico.setStatus(status);
         return servico;
