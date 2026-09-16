@@ -5,11 +5,15 @@ on:
     branches:
       - main
       - develop
-      - feature/*
+      - 'feature/**'
   pull_request:
     branches:
       - main
       - develop
+
+# Boa prática de segurança: Restringe as permissões do GITHUB_TOKEN apenas para leitura de conteúdo
+permissions:
+  contents: read
 
 jobs:
   build-and-test:

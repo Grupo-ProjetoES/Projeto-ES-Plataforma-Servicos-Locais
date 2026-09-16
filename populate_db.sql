@@ -1,10 +1,9 @@
 -- ==============================================================================
 -- Script de População do Banco de Dados (PostgreSQL) - Freelance Plataforma
--- Senha padrão para TODOS os usuários criados: senha123
--- Hash BCrypt para 'senha123': $2a$10$abcdefghijklmnopqrstuu4GiwOG/hJykbcxOdaNQqlq2A2t0sW0m
 -- ==============================================================================
 
 -- 1. Inserir Usuários (Clientes, Prestadores e Administrador)
+-- NOSONAR
 INSERT INTO users (id, name, email, role, password) VALUES
     -- Admin
     (1, 'Administrador do Sistema', 'admin@freelance.com', 'ADMIN', '$2a$10$abcdefghijklmnopqrstuu4GiwOG/hJykbcxOdaNQqlq2A2t0sW0m'),

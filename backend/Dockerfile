@@ -1,18 +1,30 @@
-FROM maven:3.9.6-eclipse-temurin-17 AS build
+FROM node:20-alpine AS build
 WORKDIR /app
 
-COPY pom.xml .
-RUN mvn dependency:go-offline
+COPY package.json package-lock.json ./
 
-COPY src ./src
-RUN mvn clean package -DskipTests
+RUN npm ci
+
+COPY . .
+
+ARG VITE_API_BASE_URL
+ENV VITE_API_BASE_URL=$VITE_API_BASE_URL
+
+RUN npm run build
 
 
-FROM eclipse-temurin:17-jre-alpine
-WORKDIR /app
+FROM nginx:1.25-alpine
 
-COPY --from=build /app/target/*.jar app.jar
+# Remove o conteúdo padrão e ajusta permissões
+RUN rm -rf /usr/share/nginx/html/* && \
+    touch /var/run/nginx.pid && \
+    chown -R nginx:nginx /var/run/nginx.pid /var/cache/nginx /var/log/nginx /usr/share/nginx/html
 
-EXPOSE 8080
+COPY --from=build /app/dist /usr/share/nginx/html
 
-ENTRYPOINT ["java", "-jar", "app.jar"]
+# Alterna para o usuário não-root do Nginx
+USER nginx
+
+EXPOSE 80
+
+CMD ["nginx", "-g", "daemon off;"]
