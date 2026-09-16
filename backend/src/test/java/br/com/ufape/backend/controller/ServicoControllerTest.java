@@ -2,8 +2,10 @@ package br.com.ufape.backend.controller;
 
 import br.com.ufape.backend.dto.AvaliacaoRequestDto;
 import br.com.ufape.backend.dto.AvaliacaoResponseDto;
+import br.com.ufape.backend.dto.ServicoComparacaoResponseDto;
 import br.com.ufape.backend.dto.ServicoContratadoPrestadorResponseDto;
 import br.com.ufape.backend.dto.ServicoContratadoResponseDto;
+import br.com.ufape.backend.enums.FormaCobranca;
 import br.com.ufape.backend.enums.StatusServico;
 import br.com.ufape.backend.enums.UserRole;
 import br.com.ufape.backend.exception.AvaliacaoDuplicadaException;
@@ -20,7 +22,9 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.web.server.ResponseStatusException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
@@ -333,6 +337,126 @@ class ServicoControllerTest {
     void deveRetornar401AoBuscarHistoricoSemEstarLogado() throws Exception {
         mockMvc.perform(get("/api/servicos/contratados/historico")
                         .contextPath("/api"))
+                .andExpect(status().isUnauthorized())
+                .andExpect(jsonPath("$.status").value(401));
+    }
+
+    @Test
+    void deveRetornar200EListaComparacaoAoPassarDoisServicosValidos() throws Exception {
+        List<ServicoComparacaoResponseDto> response = List.of(
+                new ServicoComparacaoResponseDto(
+                        1L, "Instalação Elétrica", "Eletricista", "Boa Viagem", "Recife",
+                        FormaCobranca.POR_HORA, "Carlos Prestador", 4.8, 15L
+                ),
+                new ServicoComparacaoResponseDto(
+                        2L, "Pintura Residencial", "Pintor", "Piedade", "Jaboatão",
+                        FormaCobranca.VALOR_FIXO_TOTAL, "Maria Prestadora", 4.5, 8L
+                )
+        );
+
+        when(servicoService.compararServicos(List.of(1L, 2L))).thenReturn(response);
+
+        mockMvc.perform(get("/api/servicos/comparar")
+                        .contextPath("/api")
+                        .param("ids", "1,2")
+                        .with(authentication(usuarioAutenticado)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$").isArray())
+                .andExpect(jsonPath("$.length()").value(2))
+                .andExpect(jsonPath("$[0].id").value(1))
+                .andExpect(jsonPath("$[0].titulo").value("Instalação Elétrica"))
+                .andExpect(jsonPath("$[0].categoria").value("Eletricista"))
+                .andExpect(jsonPath("$[0].bairro").value("Boa Viagem"))
+                .andExpect(jsonPath("$[0].cidade").value("Recife"))
+                .andExpect(jsonPath("$[0].formaCobranca").value("POR_HORA"))
+                .andExpect(jsonPath("$[0].nomePrestador").value("Carlos Prestador"))
+                .andExpect(jsonPath("$[0].notaMediaPrestador").value(4.8))
+                .andExpect(jsonPath("$[0].totalAvaliacoesPrestador").value(15))
+                .andExpect(jsonPath("$[1].id").value(2))
+                .andExpect(jsonPath("$[1].notaMediaPrestador").value(4.5));
+    }
+
+    @Test
+    void deveRetornar200EListaComparacaoAoPassarTresServicosValidos() throws Exception {
+        List<ServicoComparacaoResponseDto> response = List.of(
+                new ServicoComparacaoResponseDto(1L, "S1", "C1", "B1", "C1", FormaCobranca.POR_HORA, "P1", 5.0, 1L),
+                new ServicoComparacaoResponseDto(2L, "S2", "C2", "B2", "C2", FormaCobranca.DIARIA, "P2", null, 0L),
+                new ServicoComparacaoResponseDto(3L, "S3", "C3", "B3", "C3", FormaCobranca.MENSALIDADE, "P3", 4.0, 3L)
+        );
+
+        when(servicoService.compararServicos(List.of(1L, 2L, 3L))).thenReturn(response);
+
+        mockMvc.perform(get("/api/servicos/comparar")
+                        .contextPath("/api")
+                        .param("ids", "1,2,3")
+                        .with(authentication(usuarioAutenticado)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$").isArray())
+                .andExpect(jsonPath("$.length()").value(3))
+                .andExpect(jsonPath("$[1].id").value(2))
+                .andExpect(jsonPath("$[1].totalAvaliacoesPrestador").value(0));
+    }
+
+    @Test
+    void deveRetornar400QuandoPassarMenosDeDoisIds() throws Exception {
+        when(servicoService.compararServicos(List.of(1L)))
+                .thenThrow(new ResponseStatusException(HttpStatus.BAD_REQUEST, "A comparação deve ser feita entre 2 e 3 serviços."));
+
+        mockMvc.perform(get("/api/servicos/comparar")
+                        .contextPath("/api")
+                        .param("ids", "1")
+                        .with(authentication(usuarioAutenticado)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.status").value(400))
+                .andExpect(jsonPath("$.message").value("A comparação deve ser feita entre 2 e 3 serviços."));
+    }
+
+    @Test
+    void deveRetornar400QuandoPassarMaisDeTresIds() throws Exception {
+        when(servicoService.compararServicos(List.of(1L, 2L, 3L, 4L)))
+                .thenThrow(new ResponseStatusException(HttpStatus.BAD_REQUEST, "A comparação deve ser feita entre 2 e 3 serviços."));
+
+        mockMvc.perform(get("/api/servicos/comparar")
+                        .contextPath("/api")
+                        .param("ids", "1,2,3,4")
+                        .with(authentication(usuarioAutenticado)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.status").value(400))
+                .andExpect(jsonPath("$.message").value("A comparação deve ser feita entre 2 e 3 serviços."));
+    }
+
+    @Test
+    void deveRetornar400QuandoNaoEnviarParametroIds() throws Exception {
+        when(servicoService.compararServicos(null))
+                .thenThrow(new ResponseStatusException(HttpStatus.BAD_REQUEST, "A comparação deve ser feita entre 2 e 3 serviços."));
+
+        mockMvc.perform(get("/api/servicos/comparar")
+                        .contextPath("/api")
+                        .with(authentication(usuarioAutenticado)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.status").value(400))
+                .andExpect(jsonPath("$.message").value("A comparação deve ser feita entre 2 e 3 serviços."));
+    }
+
+    @Test
+    void deveRetornar404QuandoServicoNaoForEncontrado() throws Exception {
+        when(servicoService.compararServicos(List.of(1L, 999L)))
+                .thenThrow(new ServicoNotFoundException());
+
+        mockMvc.perform(get("/api/servicos/comparar")
+                        .contextPath("/api")
+                        .param("ids", "1,999")
+                        .with(authentication(usuarioAutenticado)))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.status").value(404))
+                .andExpect(jsonPath("$.message").value("Serviço não encontrado"));
+    }
+
+    @Test
+    void deveRetornar401AoTentarCompararServicosSemEstarAutenticado() throws Exception {
+        mockMvc.perform(get("/api/servicos/comparar")
+                        .contextPath("/api")
+                        .param("ids", "1,2"))
                 .andExpect(status().isUnauthorized())
                 .andExpect(jsonPath("$.status").value(401));
     }

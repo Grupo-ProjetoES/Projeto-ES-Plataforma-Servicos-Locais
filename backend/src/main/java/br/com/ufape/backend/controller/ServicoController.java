@@ -4,6 +4,7 @@ import br.com.ufape.backend.dto.AtualizarStatusServicoDto;
 import br.com.ufape.backend.dto.AvaliacaoRequestDto;
 import br.com.ufape.backend.dto.AvaliacaoResponseDto;
 import br.com.ufape.backend.dto.HistoricoServicoContratadoDto;
+import br.com.ufape.backend.dto.ServicoComparacaoResponseDto;
 import br.com.ufape.backend.dto.ServicoContratadoPrestadorResponseDto;
 import br.com.ufape.backend.dto.ServicoContratadoResponseDto;
 import br.com.ufape.backend.dto.ServicoDetalheResponseDto;
@@ -78,6 +79,14 @@ public class ServicoController {
         List<ServicoContratadoPrestadorResponseDto> servicos =
                 servicoService.buscarContratadosNaoIniciadosPorPrestador(usuarioAutenticado.getId());
         return ResponseEntity.ok(servicos);
+    }
+
+    // Compara entre 2 e 3 serviços retornando informações lado a lado
+    @GetMapping("/comparar")
+    public ResponseEntity<List<ServicoComparacaoResponseDto>> compararServicos(
+            @RequestParam(required = false) List<Long> ids) {
+        List<ServicoComparacaoResponseDto> resultado = servicoService.compararServicos(ids);
+        return ResponseEntity.ok(resultado);
     }
 
     // Busca os detalhes de um serviço específico pelo ID

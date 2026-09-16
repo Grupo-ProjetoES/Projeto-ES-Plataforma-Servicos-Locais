@@ -1,0 +1,232 @@
+.comparar-topbar {
+  padding: 16px 32px;
+  background-color: #ffffff;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.comparar-page {
+  width: 100%;
+  min-height: 100vh;
+  background-color: #f8fafc;
+  padding: 40px 20px;
+  box-sizing: border-box;
+}
+
+.comparar-container {
+  width: min(100%, 1120px);
+  margin-left: auto;
+  margin-right: auto;
+  box-sizing: border-box;
+}
+
+.btn-voltar-busca {
+  margin-bottom: 20px;
+  padding: 10px 16px;
+  border: 1px solid #d1d5db;
+  border-radius: 12px;
+  background: #ffffff;
+  color: #111827;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s, border-color 0.2s;
+}
+
+.btn-voltar-busca:hover {
+  background: #f1f5f9;
+  border-color: #9ca3af;
+}
+
+.comparar-header {
+  margin-bottom: 28px;
+  text-align: left;
+}
+
+.comparar-header h1 {
+  margin: 0 0 8px;
+  font-size: 2rem;
+  color: #111827;
+}
+
+.comparar-header p {
+  margin: 0;
+  color: #4b5563;
+  font-size: 1.05rem;
+}
+
+.comparar-status {
+  padding: 48px 24px;
+  text-align: center;
+  color: #4b5563;
+  background: #ffffff;
+  border-radius: 16px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.06);
+  border: 1px solid #e2e8f0;
+}
+
+.comparar-status p {
+  margin: 0 0 16px;
+  font-size: 1.1rem;
+}
+
+.btn-ir-busca {
+  padding: 12px 24px;
+  border-radius: 12px;
+  border: 1px solid #0f766e;
+  background: #0f766e;
+  color: #ffffff;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.btn-ir-busca:hover {
+  background: #115e59;
+}
+
+.comparar-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 24px;
+  align-items: stretch;
+}
+
+.comparar-coluna {
+  background: #ffffff;
+  border-radius: 16px;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.comparar-coluna:hover {
+  box-shadow: 0 14px 35px rgba(0, 0, 0, 0.08);
+}
+
+.comparar-coluna-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.btn-remover-comparacao {
+  background: transparent;
+  border: none;
+  color: #ef4444;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 6px;
+  transition: background 0.2s, color 0.2s;
+}
+
+.btn-remover-comparacao:hover {
+  background: #fee2e2;
+  color: #b91c1c;
+}
+
+.comparar-servico-titulo {
+  margin: 0 0 16px;
+  font-size: 1.4rem;
+  color: #111827;
+  line-height: 1.3;
+}
+
+.comparar-secao {
+  padding: 12px 0;
+  border-top: 1px solid #f1f5f9;
+}
+
+.comparar-label {
+  display: block;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #6b7280;
+  margin-bottom: 4px;
+  font-weight: 600;
+}
+
+.comparar-valor {
+  margin: 0;
+  font-size: 1rem;
+  color: #1f2937;
+  font-weight: 500;
+}
+
+.comparar-avaliacao {
+  color: #d97706;
+  font-weight: 700;
+}
+
+.comparar-acoes {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: auto;
+  padding-top: 20px;
+  border-top: 1px solid #f1f5f9;
+}
+
+.btn-comparar-detalhes,
+.btn-comparar-orcamento {
+  width: 100%;
+  padding: 12px 16px;
+  border-radius: 12px;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+  text-align: center;
+  transition: background 0.2s, border-color 0.2s;
+}
+
+.btn-comparar-detalhes {
+  border: 1px solid #d1d5db;
+  background: #f8fafc;
+  color: #1f2937;
+}
+
+.btn-comparar-detalhes:hover {
+  background: #f1f5f9;
+  border-color: #9ca3af;
+}
+
+.btn-comparar-orcamento {
+  border: 1px solid #0f766e;
+  background: #0f766e;
+  color: #ffffff;
+}
+
+.btn-comparar-orcamento:hover {
+  background: #115e59;
+  border-color: #115e59;
+}
+
+@media (max-width: 768px) {
+  .comparar-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.comparar-aviso-regiao {
+  margin-bottom: 24px;
+  padding: 14px 18px;
+  border-radius: 12px;
+  background-color: #fffbeb;
+  border: 1px solid #fef3c7;
+  color: #92400e;
+  font-size: 0.95rem;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  box-shadow: 0 2px 8px rgba(245, 158, 11, 0.08);
+}
+
+.aviso-icone {
+  font-size: 1.25rem;
+  line-height: 1;
+}

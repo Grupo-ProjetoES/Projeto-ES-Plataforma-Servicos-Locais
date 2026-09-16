@@ -1,12 +1,14 @@
 package br.com.ufape.backend.service;
 
 import br.com.ufape.backend.dto.HistoricoServicoContratadoDto;
+import br.com.ufape.backend.dto.ServicoComparacaoResponseDto;
 import br.com.ufape.backend.dto.ServicoContratadoPrestadorResponseDto;
 import br.com.ufape.backend.dto.ServicoContratadoResponseDto;
 import br.com.ufape.backend.dto.ServicoDetalheResponseDto;
 import br.com.ufape.backend.dto.ServicoRequestDto;
 import br.com.ufape.backend.dto.ServicoResumoResponseDto;
 import br.com.ufape.backend.enums.StatusServico;
+import br.com.ufape.backend.exception.ServicoNotFoundException;
 import br.com.ufape.backend.model.Orcamento;
 import br.com.ufape.backend.model.ProviderProfile;
 import br.com.ufape.backend.model.ServiceCategory;
@@ -24,6 +26,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -214,6 +217,46 @@ public class ServicoService {
                 servico.getStatus(),
                 servicosAvaliados.contains(servico.getId())
         )).toList();
+    }
+
+    public List<ServicoComparacaoResponseDto> compararServicos(List<Long> ids) {
+        if (ids == null || ids.size() < 2 || ids.size() > 3) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "A comparação deve ser feita entre 2 e 3 serviços.");
+        }
+
+        for (Long id : ids) {
+            if (id == null) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "A lista de IDs não pode conter valores nulos ou repetidos.");
+            }
+        }
+
+        if (new HashSet<>(ids).size() != ids.size()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "A lista de IDs não pode conter valores nulos ou repetidos.");
+        }
+
+        List<ServicoComparacaoResponseDto> resultado = new ArrayList<>();
+        for (Long id : ids) {
+            Servico servico = servicoRepository.findById(id)
+                    .orElseThrow(ServicoNotFoundException::new);
+
+            Long prestadorId = servico.getPrestador() != null ? servico.getPrestador().getId() : null;
+            Double media = prestadorId != null ? avaliacaoRepository.calcularMediaNotasPorPrestadorId(prestadorId) : null;
+            Long total = prestadorId != null ? avaliacaoRepository.contarPorPrestadorId(prestadorId) : 0L;
+
+            resultado.add(new ServicoComparacaoResponseDto(
+                    servico.getId(),
+                    servico.getTitulo(),
+                    servico.getCategoria().getName(),
+                    servico.getLocalizacao(),
+                    servico.getAreaAtendimento(),
+                    servico.getFormaCobranca(),
+                    servico.getPrestador().getUser().getName(),
+                    media,
+                    total != null ? total : 0L
+            ));
+        }
+
+        return resultado;
     }
 
 }
