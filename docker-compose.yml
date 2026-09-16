@@ -1,14 +1,25 @@
 services:
+
   freelance-postgres:
+
     image: postgres:16
+
     environment:
+
       POSTGRES_DB: postgres
+
       POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
+
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+
     ports:
+
       - "5432:5432"
+
     volumes:
+
       - freelance-postgres-data:/var/lib/postgresql/data
 
 volumes:
+
   freelance-postgres-data:

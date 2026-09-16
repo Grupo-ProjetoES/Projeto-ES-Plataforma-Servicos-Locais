@@ -34,10 +34,17 @@ export default function CategoryGrid() {
   };
 
   return (
-    <div className="form-group">
-      <label>Categorias de Atuação</label>
+
+    <div className="form-group" role="group" aria-labelledby="category-grid-title">
+
+      <h3 id="category-grid-title" className="form-label-title">
+
+        Categorias de Atuação
+
+      </h3>
+
       <p className="field-hint">Selecione uma ou mais categorias:</p>
-      
+
       <div className="categories-grid">
         {defaultCategories.map((category) => {
           const isSelected = selectedCategories.includes(category);

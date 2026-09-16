@@ -1,47 +1,49 @@
 -- ==============================================================================
 -- Script de População do Banco de Dados (PostgreSQL) - Freelance Plataforma
--- Senha padrão para TODOS os usuários criados: senha123
--- Hash BCrypt para 'senha123': $2a$10$abcdefghijklmnopqrstuu4GiwOG/hJykbcxOdaNQqlq2A2t0sW0m
 -- ==============================================================================
+
+-- Habilita a extensão necessária para geração dinâmica de hash BCrypt
+CREATE EXTENSION IF NOT EXISTS pgcrypto;
 
 -- 1. Inserir Usuários (Clientes, Prestadores e Administrador)
 INSERT INTO users (id, name, email, role, password) VALUES
     -- Admin
-    (1, 'Administrador do Sistema', 'admin@freelance.com', 'ADMIN', '$2a$10$abcdefghijklmnopqrstuu4GiwOG/hJykbcxOdaNQqlq2A2t0sW0m'),
+    (1, 'Administrador do Sistema', 'admin@freelance.com', 'ADMIN', crypt('senha123', gen_salt('bf'))),
+
     -- Clientes (para contratar e avaliar)
-    (2, 'Lucas Cliente', 'cliente@freelance.com', 'USER', '$2a$10$abcdefghijklmnopqrstuu4GiwOG/hJykbcxOdaNQqlq2A2t0sW0m'),
-    (3, 'Maria Oliveira', 'maria@freelance.com', 'USER', '$2a$10$abcdefghijklmnopqrstuu4GiwOG/hJykbcxOdaNQqlq2A2t0sW0m'),
-    (10, 'João Pedro Santos', 'joao.cliente@freelance.com', 'USER', '$2a$10$abcdefghijklmnopqrstuu4GiwOG/hJykbcxOdaNQqlq2A2t0sW0m'),
-    (11, 'Beatriz Costa', 'beatriz.cliente@freelance.com', 'USER', '$2a$10$abcdefghijklmnopqrstuu4GiwOG/hJykbcxOdaNQqlq2A2t0sW0m'),
-    (12, 'Fernando Alves', 'fernando.cliente@freelance.com', 'USER', '$2a$10$abcdefghijklmnopqrstuu4GiwOG/hJykbcxOdaNQqlq2A2t0sW0m'),
+    (2, 'Lucas Cliente', 'cliente@freelance.com', 'USER', crypt('senha123', gen_salt('bf'))),
+    (3, 'Maria Oliveira', 'maria@freelance.com', 'USER', crypt('senha123', gen_salt('bf'))),
+    (10, 'João Pedro Santos', 'joao.cliente@freelance.com', 'USER', crypt('senha123', gen_salt('bf'))),
+    (11, 'Beatriz Costa', 'beatriz.cliente@freelance.com', 'USER', crypt('senha123', gen_salt('bf'))),
+    (12, 'Fernando Alves', 'fernando.cliente@freelance.com', 'USER', crypt('senha123', gen_salt('bf'))),
 
     -- Prestadores - Segmento: Pintura
-    (4, 'Carlos Silva', 'carlos.silva@freelance.com', 'PRESTADOR', '$2a$10$abcdefghijklmnopqrstuu4GiwOG/hJykbcxOdaNQqlq2A2t0sW0m'),
-    (20, 'Bruno Pinturas', 'bruno.pinturas@freelance.com', 'PRESTADOR', '$2a$10$abcdefghijklmnopqrstuu4GiwOG/hJykbcxOdaNQqlq2A2t0sW0m'),
-    (21, 'Leandro Tintas & Cores', 'leandro.tintas@freelance.com', 'PRESTADOR', '$2a$10$abcdefghijklmnopqrstuu4GiwOG/hJykbcxOdaNQqlq2A2t0sW0m'),
-    (22, 'Rafael Pintor', 'rafael.pintor@freelance.com', 'PRESTADOR', '$2a$10$abcdefghijklmnopqrstuu4GiwOG/hJykbcxOdaNQqlq2A2t0sW0m'),
+    (4, 'Carlos Silva', 'carlos.silva@freelance.com', 'PRESTADOR', crypt('senha123', gen_salt('bf'))),
+    (20, 'Bruno Pinturas', 'bruno.pinturas@freelance.com', 'PRESTADOR', crypt('senha123', gen_salt('bf'))),
+    (21, 'Leandro Tintas & Cores', 'leandro.tintas@freelance.com', 'PRESTADOR', crypt('senha123', gen_salt('bf'))),
+    (22, 'Rafael Pintor', 'rafael.pintor@freelance.com', 'PRESTADOR', crypt('senha123', gen_salt('bf'))),
 
     -- Prestadores - Segmento: Elétrica
-    (5, 'Ana Souza', 'ana.souza@freelance.com', 'PRESTADOR', '$2a$10$abcdefghijklmnopqrstuu4GiwOG/hJykbcxOdaNQqlq2A2t0sW0m'),
-    (23, 'Rodrigo Eletricista', 'rodrigo.eletricista@freelance.com', 'PRESTADOR', '$2a$10$abcdefghijklmnopqrstuu4GiwOG/hJykbcxOdaNQqlq2A2t0sW0m'),
-    (24, 'Paula Instalações Elétricas', 'paula.eletrica@freelance.com', 'PRESTADOR', '$2a$10$abcdefghijklmnopqrstuu4GiwOG/hJykbcxOdaNQqlq2A2t0sW0m'),
-    (25, 'Marcos Eletro Reparos', 'marcos.eletro@freelance.com', 'PRESTADOR', '$2a$10$abcdefghijklmnopqrstuu4GiwOG/hJykbcxOdaNQqlq2A2t0sW0m'),
+    (5, 'Ana Souza', 'ana.souza@freelance.com', 'PRESTADOR', crypt('senha123', gen_salt('bf'))),
+    (23, 'Rodrigo Eletricista', 'rodrigo.eletricista@freelance.com', 'PRESTADOR', crypt('senha123', gen_salt('bf'))),
+    (24, 'Paula Instalações Elétricas', 'paula.eletrica@freelance.com', 'PRESTADOR', crypt('senha123', gen_salt('bf'))),
+    (25, 'Marcos Eletro Reparos', 'marcos.eletro@freelance.com', 'PRESTADOR', crypt('senha123', gen_salt('bf'))),
 
     -- Prestadores - Segmento: Limpeza e Diarista
-    (7, 'Juliana Rocha', 'juliana.rocha@freelance.com', 'PRESTADOR', '$2a$10$abcdefghijklmnopqrstuu4GiwOG/hJykbcxOdaNQqlq2A2t0sW0m'),
-    (26, 'Sandra Limpeza Geral', 'sandra.limpeza@freelance.com', 'PRESTADOR', '$2a$10$abcdefghijklmnopqrstuu4GiwOG/hJykbcxOdaNQqlq2A2t0sW0m'),
-    (27, 'Camila Clean Residencial', 'camila.clean@freelance.com', 'PRESTADOR', '$2a$10$abcdefghijklmnopqrstuu4GiwOG/hJykbcxOdaNQqlq2A2t0sW0m'),
-    (28, 'Valéria Faxinas', 'valeria.faxinas@freelance.com', 'PRESTADOR', '$2a$10$abcdefghijklmnopqrstuu4GiwOG/hJykbcxOdaNQqlq2A2t0sW0m'),
+    (7, 'Juliana Rocha', 'juliana.rocha@freelance.com', 'PRESTADOR', crypt('senha123', gen_salt('bf'))),
+    (26, 'Sandra Limpeza Geral', 'sandra.limpeza@freelance.com', 'PRESTADOR', crypt('senha123', gen_salt('bf'))),
+    (27, 'Camila Clean Residencial', 'camila.clean@freelance.com', 'PRESTADOR', crypt('senha123', gen_salt('bf'))),
+    (28, 'Valéria Faxinas', 'valeria.faxinas@freelance.com', 'PRESTADOR', crypt('senha123', gen_salt('bf'))),
 
     -- Prestadores - Segmento: Hidráulica e Encanador
-    (8, 'Roberto Santos', 'roberto.santos@freelance.com', 'PRESTADOR', '$2a$10$abcdefghijklmnopqrstuu4GiwOG/hJykbcxOdaNQqlq2A2t0sW0m'),
-    (29, 'Diego Hidráulica', 'diego.encanador@freelance.com', 'PRESTADOR', '$2a$10$abcdefghijklmnopqrstuu4GiwOG/hJykbcxOdaNQqlq2A2t0sW0m'),
-    (30, 'Marcelo Caça Vazamentos', 'marcelo.vazamentos@freelance.com', 'PRESTADOR', '$2a$10$abcdefghijklmnopqrstuu4GiwOG/hJykbcxOdaNQqlq2A2t0sW0m'),
+    (8, 'Roberto Santos', 'roberto.santos@freelance.com', 'PRESTADOR', crypt('senha123', gen_salt('bf'))),
+    (29, 'Diego Hidráulica', 'diego.encanador@freelance.com', 'PRESTADOR', crypt('senha123', gen_salt('bf'))),
+    (30, 'Marcelo Caça Vazamentos', 'marcelo.vazamentos@freelance.com', 'PRESTADOR', crypt('senha123', gen_salt('bf'))),
 
     -- Prestadores - Segmento: Marcenaria
-    (6, 'Marcos Lima', 'marcos.lima@freelance.com', 'PRESTADOR', '$2a$10$abcdefghijklmnopqrstuu4GiwOG/hJykbcxOdaNQqlq2A2t0sW0m'),
-    (31, 'Eduardo Madeira & Arte', 'eduardo.marcenaria@freelance.com', 'PRESTADOR', '$2a$10$abcdefghijklmnopqrstuu4GiwOG/hJykbcxOdaNQqlq2A2t0sW0m'),
-    (32, 'Thiago Móveis Design', 'thiago.moveis@freelance.com', 'PRESTADOR', '$2a$10$abcdefghijklmnopqrstuu4GiwOG/hJykbcxOdaNQqlq2A2t0sW0m')
+    (6, 'Marcos Lima', 'marcos.lima@freelance.com', 'PRESTADOR', crypt('senha123', gen_salt('bf'))),
+    (31, 'Eduardo Madeira & Arte', 'eduardo.marcenaria@freelance.com', 'PRESTADOR', crypt('senha123', gen_salt('bf'))),
+    (32, 'Thiago Móveis Design', 'thiago.moveis@freelance.com', 'PRESTADOR', crypt('senha123', gen_salt('bf')))
 ON CONFLICT (id) DO UPDATE SET
     name = EXCLUDED.name,
     email = EXCLUDED.email,
@@ -202,7 +204,7 @@ ON CONFLICT (id) DO UPDATE SET
 -- 7. Inserir Grande Volume de Avaliações com Diferentes Médias
 -- Usuários avaliadores:
 -- 2: Lucas, 3: Maria, 10: João Pedro, 11: Beatriz, 12: Fernando
-DELETE FROM avaliacoes;
+DELETE FROM avaliacoes WHERE id IS NOT NULL;
 INSERT INTO avaliacoes (id, servico_id, provider_profile_id, user_id, nota, comentario, created_at) VALUES
     -- Avaliações de Carlos Silva (id=1, Pintor) -> 4 avaliações (5, 4, 5, 5) -> Média 4.8
     (1, 1, 1, 2, 5, 'Excelente trabalho! Pintura ficou impecável e a equipe foi super limpa e pontual.', NOW() - INTERVAL '30 days'),
@@ -288,7 +290,7 @@ INSERT INTO avaliacoes (id, servico_id, provider_profile_id, user_id, nota, come
     (47, 26, 18, 2, 4, 'O painel ripado da sala com fita LED ficou lindo demais.', NOW() - INTERVAL '8 days');
 
 -- 8. Inserir Orçamentos (orcamentos)
-DELETE FROM orcamentos;
+DELETE FROM orcamentos WHERE id IS NOT NULL;
 INSERT INTO orcamentos (id, descricao_necessidade, local_atendimento, data_ou_periodo_desejado, servico_id, provider_profile_id, solicitante_id, valor_resposta, descricao_resposta, status_resposta) VALUES
     (1, 'Preciso pintar 3 quartos e 1 corredor na próxima semana.', 'Centro, Arcoverde', 'Próxima segunda-feira pela manhã', 1, 1, 2, 850.00, 'Orçamento inclui mão de obra e proteção dos móveis.', 'RESPONDIDO'),
     (2, 'Troca de fiação antiga de casa térrea de 80m².', 'São Cristóvão, Arcoverde', 'Final do mês', 2, 2, 3, 1200.00, 'Revisão completa de circuitos e disjuntores.', 'PENDENTE'),
