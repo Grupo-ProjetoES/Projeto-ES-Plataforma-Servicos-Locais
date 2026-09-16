@@ -11,7 +11,6 @@ on:
       - main
       - develop
 
-# Boa prática de segurança: Restringe as permissões do GITHUB_TOKEN apenas para leitura de conteúdo
 permissions:
   contents: read
 
@@ -36,7 +35,7 @@ jobs:
           cache-dependency-path: './frontend/package-lock.json'
 
       - name: Instalar dependências
-        run: npm ci
+        run: npm ci --ignore-scripts
 
       - name: Checagem de Tipos (TypeScript)
         run: npm run typecheck
